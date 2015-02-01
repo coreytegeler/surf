@@ -2,7 +2,7 @@ window.onYouTubeIframeAPIReady = function() {
 	var l = tags.length;
 	var i = rand(l);
 	var tag = tags[i];
-	// console.log(tag);
+	console.log(tag);
 	findVideo(tag);
 }
 
