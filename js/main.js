@@ -28,7 +28,7 @@ function setupPlayer(id) {
 	  width: width(),
 	  videoId: id,
 	  playerVars: {
-	  	'autoplay' : 1,
+	  	'autoplay' : 0,
 	  	// 'controls' : 0
 	  },
 	  events: {
@@ -42,12 +42,15 @@ function onPlayerReady(event) {
 	var dur = vid.getDuration();
 	var time = rand(dur);
 	vid.setVolume(0);
+	vid.pauseVideo()
 	vid.seekTo(time, true);
-	vid.playVideo();
+	// $('play').click(function() {
+	// 	vid.playVideo();
+	// });
 }
 
 function stopVideo() {
-	player.stopVideo();
+	vid.stopVideo();
 }
 
 function width() {

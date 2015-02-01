@@ -5,6 +5,7 @@ body {
 	margin: 0;
 	height: 100%;
 	width: 100%;
+	position: relative;
 	background-color: #F0E043;
 	background-image: url(img/logo.svg);
 	background-repeat: no-repeat;
@@ -14,7 +15,30 @@ body {
 #webcam {
 	display: none;
 }
+
 #waves {
+	position: absolute;
+	top: 0;
+	left: 0;
 	height: 100%;
 	width: 100%;
+}
+
+#play {
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	left: 50%;
+	top: 50%;
+	margin: 150px 0 0 -50px;
+	color: transparent;
+	background: #4F66AF;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+#player {
+	position: absolute;
+	left: 0;
+	top: 0;
 }
