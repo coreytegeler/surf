@@ -1,12 +1,21 @@
+var ytReady;
+var player;
+
 window.onYouTubeIframeAPIReady = function() {
+	ytReady = true;
+}
+
+$(window).load(function() {
 	var l = tags.length;
 	var i = rand(l);
 	var tag = tags[i];
-	console.log(tag);
+	$play = $('#playBtn');
+	$waves = $('#waves');
 	findVideo(tag);
-}
+});
 
 function findVideo(tag) {
+	console.log(tag);
 	var key = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
 	var order = 'rating';
 	var query = tag;
@@ -21,8 +30,9 @@ function findVideo(tag) {
 	});
 }
 
-var player;
+
 function setupPlayer(id) {
+	console.log(id);
 	player = new YT.Player('player', {
 	  height: height(),
 	  width: width(),
@@ -32,21 +42,54 @@ function setupPlayer(id) {
 	  	// 'controls' : 0
 	  },
 	  events: {
-	    'onReady': onPlayerReady
+	    'onReady': onPlayerReady,
+	    'onStateChange': onPlayerStateChange
 	  }
 	});
 }
 
 function onPlayerReady(event) {
-	var vid = event.target;
+	vid = event.target;
+	vid.setVolume(0);
 	var dur = vid.getDuration();
 	var time = rand(dur);
-	vid.setVolume(0);
-	vid.pauseVideo()
 	vid.seekTo(time, true);
-	// $('play').click(function() {
-	// 	vid.playVideo();
-	// });
+}
+
+var surfing = false;
+function onPlayerStateChange(event) {
+	var state = event.data;
+	// -1	 unstarted
+	// 0	 ended
+	// 1	 playing
+	// 2	 paused
+	// 3	 buffering
+	// 5	 video cued
+	console.log(state);
+
+	//If video loaded to rand time and began to play -> pause video and allow user to start
+	if (state == 1 && surfing == false) {
+		vid.pauseVideo();
+		$('body').addClass('ready');
+
+		var playBtnWrp = document.getElementById("playBtnWrp");
+		PrefixedEvent(playBtnWrp, "AnimationEnd", function() {
+			$('#playBtnWrp').addClass('bobbing');
+		});
+
+		
+		
+		$('#playBtn').click(function() {
+			startSurfing();
+		});
+	}
+}
+
+function startSurfing() {
+	surfing = true;
+	$('body').removeClass('ready');
+	$('body').addClass('surfing');
+	vid.playVideo();
 }
 
 function stopVideo() {
@@ -63,6 +106,16 @@ function height() {
 
 function rand(x) {
 	return Math.floor((Math.random() * x) + 1);
+}
+
+
+//http://www.sitepoint.com/css3-animation-javascript-event-handlers/
+var pfx = ["webkit", "moz", "MS", "o", ""];
+function PrefixedEvent(element, type, callback) {
+	for (var p = 0; p < pfx.length; p++) {
+		if (!pfx[p]) type = type.toLowerCase();
+		element.addEventListener(pfx[p]+type, callback, false);
+	}
 }
 
 $(window).resize(function() {
