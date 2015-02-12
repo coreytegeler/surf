@@ -1,42 +1,50 @@
 var ytReady;
 var player;
+var surfing = false;
+var video;
 
 window.onYouTubeIframeAPIReady = function() {
 	ytReady = true;
 }
 
 $(window).load(function() {
+	$play = $('#playBtn');
+	$waves = $('#waves');
+	$body = $('body');
+	getTag();
+});
+
+function getTag() {
 	var l = tags.length;
 	var i = rand(l);
 	var tag = tags[i];
-	$play = $('#playBtn');
-	$waves = $('#waves');
-	findVideo(tag);
-});
+	findVideos(tag);
+}
 
-function findVideo(tag) {
+var queriedVideos;
+function findVideos(tag) {
 	console.log(tag);
 	var key = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
 	var order = 'rating';
 	var query = tag;
-	var count = 50;
-	var yt = 'https://www.googleapis.com/youtube/v3/search?order=' + order + '&part=id&q=' + query + '&maxResults=' + count + '&key=' + key;
+	var queryCount = 50;
+	var yt = 'https://www.googleapis.com/youtube/v3/search?order=' + order + '&part=id&q=' + query + '&maxResults=' + queryCount + '&key=' + key;
 	$.get( yt, function(data) {
-	  var videos = data.items;
-	  var index = rand(count);
-	  var video = videos[index];
-	  var id = video.id.videoId;
-	  setupPlayer(id);
+	  queriedVideos = data.items;
+	  if (surfing == false) {
+	  	setupPlayer();
+	  } else {
+	  	queueNewVideo();
+	  }
 	});
 }
 
-
-function setupPlayer(id) {
-	console.log(id);
-	player = new YT.Player('player', {
+var playerCount = 0;
+function setupPlayer(qV) {
+	player = new YT.Player('player1', {
 	  height: height(),
 	  width: width(),
-	  videoId: id,
+	  // videoId: id,
 	  playerVars: {
 	  	'autoplay' : 0,
 	  	// 'controls' : 0
@@ -49,47 +57,86 @@ function setupPlayer(id) {
 }
 
 function onPlayerReady(event) {
-	vid = event.target;
-	vid.setVolume(0);
-	var dur = vid.getDuration();
-	var time = rand(dur);
-	vid.seekTo(time, true);
+	video = event.target;
+	queueNewVideo(event);
 }
 
-var surfing = false;
+
 function onPlayerStateChange(event) {
-	var state = event.data;
-	// -1	 unstarted
-	// 0	 ended
-	// 1	 playing
-	// 2	 paused
-	// 3	 buffering
-	// 5	 video cued
-	console.log(state);
+	var stateInt = event.data;
+	var states = [
+		'unstarted',  // -1	
+		'ended', 	  //  0
+		'playing', 	  //  1
+		'paused', 	  //  2
+		'buffering',  //  3	
+		'idk', 		  //  4
+		'video cued'  //  5
+	];
+	var state = states[stateInt + 1];
+	console.log(stateInt + ' ' + state);
+
+	if(stateInt != 3) {
+		$body.removeClass('buffering');
+	}
 
 	//If video loaded to rand time and began to play -> pause video and allow user to start
-	if (state == 1 && surfing == false) {
-		vid.pauseVideo();
-		$('body').addClass('ready');
+	if (stateInt == 1 && surfing == false) {
+		video.pauseVideo();
+
+		var dur = video.getDuration();
+		startTime = rand(dur); //prevent this from loading too close to the end!!
+		var newDur = dur - startTime;
+		// endTime = rand(dur); //prevent this from ending too close to the start!!
+		// endTime = startTime + 5;
+		video.seekTo(startTime, true);
+
+		$body.addClass('ready');
 
 		var playBtnWrp = document.getElementById("playBtnWrp");
 		PrefixedEvent(playBtnWrp, "AnimationEnd", function() {
 			$('#playBtnWrp').addClass('bobbing');
 		});
 
-		
-		
 		$('#playBtn').click(function() {
 			startSurfing();
 		});
+	} else if (stateInt == 1) {
+		// var dur = video.getDuration();
+		// startTime = rand(dur);
+		// var newDur = dur - startTime;
+		// endTime = rand(dur);
+		// endTime = startTime + 10;
+
+		window.setInterval(function() {
+			// var dur = video.getDuration();
+			var currentTime = video.getCurrentTime();
+			var endTime = currentTime + rand(8) - 1;
+			console.log(currentTime, endTime);
+			if(currentTime >= endTime) {
+				queueNewVideo();
+			}
+		},1000);
+	} else if (stateInt == 3 && surfing == true) {
+		$body.addClass('buffering');
+	} else if (stateInt == 0) {
+		queueNewVideo();
 	}
 }
 
 function startSurfing() {
 	surfing = true;
-	$('body').removeClass('ready');
-	$('body').addClass('surfing');
-	vid.playVideo();
+	video.playVideo();
+	$body.removeClass('ready');
+	$body.addClass('surfing');
+}
+
+function queueNewVideo(event) {
+	var queryCount = queriedVideos.length;
+	var index = rand(queryCount) - 1;
+	var queriedVideo = queriedVideos[index];
+	var id = queriedVideo.id.videoId;
+	player.loadVideoById(id);
 }
 
 function stopVideo() {
