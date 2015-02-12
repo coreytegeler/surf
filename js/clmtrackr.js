@@ -648,8 +648,8 @@ var clm = {
 			}
 			
 			var cc = canvas.getContext('2d');
-			cc.fillStyle = "rgb(234, 28, 36)";
-			cc.strokeStyle = "rgb(234, 28, 36)";
+			cc.fillStyle = "#009dec";
+			cc.strokeStyle = "#009dec";
 			cc.lineWidth = 2;
 			
 			var paths;

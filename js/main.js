@@ -42,12 +42,11 @@ function findVideos(tag) {
 var playerCount = 0;
 function setupPlayer(qV) {
 	player = new YT.Player('player1', {
-	  height: height(),
+	  height: height() - 100,
 	  width: width(),
-	  // videoId: id,
 	  playerVars: {
 	  	'autoplay' : 0,
-	  	// 'controls' : 0
+	  	'controls' : 0
 	  },
 	  events: {
 	    'onReady': onPlayerReady,
@@ -91,7 +90,7 @@ function onPlayerStateChange(event) {
 		// endTime = startTime + 5;
 		video.seekTo(startTime, true);
 
-		$body.addClass('ready');
+		$body.addClass('ready').removeClass('waiting');
 
 		var playBtnWrp = document.getElementById("playBtnWrp");
 		PrefixedEvent(playBtnWrp, "AnimationEnd", function() {
@@ -99,6 +98,7 @@ function onPlayerStateChange(event) {
 		});
 
 		$('#playBtn').click(function() {
+			$('#playBtnWrp').removeClass('bobbing');
 			startSurfing();
 		});
 	} else if (stateInt == 1) {
@@ -108,15 +108,15 @@ function onPlayerStateChange(event) {
 		// endTime = rand(dur);
 		// endTime = startTime + 10;
 
-		window.setInterval(function() {
-			// var dur = video.getDuration();
-			var currentTime = video.getCurrentTime();
-			var endTime = currentTime + rand(8) - 1;
-			console.log(currentTime, endTime);
-			if(currentTime >= endTime) {
-				queueNewVideo();
-			}
-		},1000);
+		// window.setInterval(function() {
+		// 	// var dur = video.getDuration();
+		// 	var currentTime = video.getCurrentTime();
+		// 	var endTime = currentTime + rand(8) - 1;
+		// 	console.log(currentTime, endTime);
+		// 	if(currentTime >= endTime) {
+		// 		queueNewVideo();
+		// 	}
+		// },1000);
 	} else if (stateInt == 3 && surfing == true) {
 		$body.addClass('buffering');
 	} else if (stateInt == 0) {
@@ -137,6 +137,7 @@ function queueNewVideo(event) {
 	var queriedVideo = queriedVideos[index];
 	var id = queriedVideo.id.videoId;
 	player.loadVideoById(id);
+	player.setVolume(0);
 }
 
 function stopVideo() {
@@ -167,52 +168,53 @@ function PrefixedEvent(element, type, callback) {
 
 $(window).resize(function() {
 	if(player) {
-		player.setSize(width(), height());
+		player.setSize(width(), height() - 100);
 	}
 });
 
 
-// $(document).ready(function() {
-// 	camBox = document.getElementById('webcam');
-// 	camVid = camBox.getElementsByTagName('video')[0];
-// 	camCan = camBox.getElementsByTagName('canvas')[0];
-// 	ctx = camCan.getContext('2d');
-// 	initWebcam();
-// });
+$(document).ready(function() {
+	camBox = document.getElementById('webcam');
+	camVid = camBox.getElementsByTagName('video')[0];
+	camCan = camBox.getElementsByTagName('canvas')[0];
+	ctx = camCan.getContext('2d');
+	initWebcam();
+});
 
-// var tracker = new clm.tracker();
-// function initWebcam() {
-//   if (Modernizr.getusermedia) {
-//     var userMedia = Modernizr.prefixed('getUserMedia', navigator);
-//     userMedia({video:true}, function(localMediaStream) {
-//       stream = localMediaStream;
-//       camVid.src = window.URL.createObjectURL(stream);
-//       $('#webcam video').on('loadedmetadata', function() {
-//         tracker.init(pModel);
-//         camVid.play();
-// 		tracker.start(camVid);
-// 		drawLoop();
-//       });
-//     }, function() {
-//       alert('Failed');
-//     });
-//   }
-// }
+var tracker = new clm.tracker();
+function initWebcam() {
+  if (Modernizr.getusermedia) {
+    var userMedia = Modernizr.prefixed('getUserMedia', navigator);
+    userMedia({video:true}, function(localMediaStream) {
+      stream = localMediaStream;
+      camVid.src = window.URL.createObjectURL(stream);
+      $('#webcam video').on('loadedmetadata', function() {
+        tracker.init(pModel);
+        camVid.play();
+		tracker.start(camVid);
+		drawLoop();
+      });
+    }, function() {
+      alert('Failed');
+    });
+  }
+}
 
-// ec = new emotionClassifier();
-// ec.init(emotionModel);
-// emotionData = ec.getBlank();
-// function drawLoop() {
-//     requestAnimationFrame(drawLoop);
-//     if (tracker.getCurrentPosition()) {
-//     	var cp = tracker.getCurrentParameters();      
-//     	var emotion = ec.meanPredict(cp);
-//     	if(emotion) {
-// 	    	var smile = emotion[3].value;
-// 	    	if(smile > 0.6) {
-// 	    		console.log(smile);
-// 	    	}
-// 	    }
-//       	tracker.draw(camCan);
-//     }
-// }
+ec = new emotionClassifier();
+ec.init(emotionModel);
+emotionData = ec.getBlank();
+function drawLoop() {
+    requestAnimationFrame(drawLoop);
+     ctx.clearRect(0,0,camCan.width,camCan.height);
+    if (tracker.getCurrentPosition()) {
+    	var cp = tracker.getCurrentParameters();      
+    	var emotion = ec.meanPredict(cp);
+    	if(emotion) {
+	    	var smile = emotion[3].value;
+	    	if(smile > 0.6) {
+	    		// console.log(smile);
+	    	}
+	    }
+      	tracker.draw(camCan);
+    }
+}

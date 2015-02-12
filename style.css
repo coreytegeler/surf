@@ -20,7 +20,8 @@ main {
 	background-color: #f6a6a8;
 }
 #webcam {
-	display: none;
+	/*display: none;*/
+	/*opacity: 0;*/
 }
 
 #waves {
@@ -46,14 +47,17 @@ main {
 	bottom: -54px;
 	left: 0;
 	z-index: 11;
-	transition: transform 400ms ease;
-	-moz-transition: transform 400ms ease;
-	-webkit-transition: transform 400ms ease;
+	transition: all 400ms ease;
+	-moz-transition: all 400ms ease;
+	-webkit-transition: all 400ms ease;
 }
 .surfing #water {
-	transform: translateY(100%)
+	transform: translateY(100%);
 	-moz-transform: translateY(100%);
-	-webkit-transform: translateY(100%)
+	-webkit-transform: translateY(100%);
+
+	bottom: 100px;
+	opacity: 1;
 }
 #waterTop {
 	background-image: url(img/water.png);
@@ -119,6 +123,8 @@ main {
 	position: absolute;
 	height: 100%;
 	width: 100%;
+}
+.waiting #playBtnWrp {
 	transform: translateY(-100%);
 	-moz-transform: translateY(-100%);
 	-webkit-transform: translateY(-100%);
@@ -126,9 +132,11 @@ main {
 .ready #playBtnWrp {
 	display: block;
 	animation: plop 1.5s ease;
-	-webkit-animation: plop 1.5s ease;	
-	transform: translateY(0%) scale(1) scaleY(1);
-	-webkit-transform: translateY(0%) scale(1) scaleY(1);		
+	-moz-animation: plop 1.5s ease;
+	-webkit-animation: plop 1.5s ease;
+	/*transform: translateY(0%) scale(1) scaleY(1);
+	-moz-transform: -moz-translateY(0%) scale(1) scaleY(1);
+	-webkit-transform: -webkit-translateY(0%) scale(1) scaleY(1);*/		
 	visibility: visible !important;	
 }
 @-webkit-keyframes plop {
@@ -142,25 +150,31 @@ main {
 		-webkit-transform: translateY(0) scale(1);
 	}	
 }
-keyframes plop {
+@-moz-keyframes plop {
+	0% {
+		-moz-transform: translateY(-100%) scale(0.6) scaleY(0.5);
+	}
+	50% {
+		-moz-transform: translateY(10%) scaleY(1.12);
+	}
+	100% {
+		-moz-transform: translateY(0) scale(1);
+	}	
+}
+@keyframes plop {
 	0% {
 		transform: translateY(-100%) scale(0.6) scaleY(0.5);
 	}
-	40%{
+	50% {
 		transform: translateY(10%) scaleY(1.12);
 	}
-	80%{
-		transform: translateY(-4%);
-	}	
-	90% {
-		transform: translateY(1%) scale(1) scaleY(1);
-	}
 	100% {
-		transform: translateY(0%);
+		transform: translateY(0) scale(1);
 	}	
 }
-.ready #playBtnWrp.bobbing {
+.ready #playBtnWrp.bobbing #playBtn {
 	animation: bob 2.3s ease infinite;
+	-moz-animation: bob 2.3s ease infinite;
 	-webkit-animation: bob 2.3s ease infinite;	
 }
 @-webkit-keyframes bob {
@@ -168,10 +182,21 @@ keyframes plop {
 		-webkit-transform: translateY(0);
 	}
 	50%{
-		-webkit-transform: translateY(2%);
+		-webkit-transform: translateY(20px);
 	}
 	100% {
 		-webkit-transform: translateY(0);
+	}	
+}
+@-moz-keyframes bob {
+	0% {
+		-moz-transform: translateY(0);
+	}
+	50%{
+		-moz-transform: translateY(20px);
+	}
+	100% {
+		-moz-transform: translateY(0);
 	}	
 }
 @keyframes bob {
@@ -179,13 +204,36 @@ keyframes plop {
 		transform: translateY(0);
 	}
 	50%{
-		transform: translateY(2%);
+		transform: translateY(20px);
 	}
 	100% {
 		transform: translateY(0);
 	}	
 }
+.surfing #playBtnWrp {
+	z-index: 12;
+	transition: z-index 0.3s step-end;
+	/*animation: drop 0.4s ease;
+	-moz-animation: drop 0.4s ease;*/
+	-webkit-animation: drop 1s ease;
 
+	transform: translateY(49%);
+	-moz-transform: translateY(49%);
+}
+@-webkit-keyframes drop {
+	0% {
+		-webkit-transform: translateY(0);
+	}
+	15% {
+		-webkit-transform: translateY(0);
+	}
+	60% {
+		-webkit-transform: translateY(52%);
+	}
+	100% {
+		-webkit-transform: translateY(49%);	
+	}
+}
 .player {
 	position: absolute;
 	left: 0;
@@ -216,4 +264,20 @@ keyframes plop {
 .buffering #static {
 	display: block;
 	z-index: 10;
+}
+
+video {
+	opacity: 0;
+}
+#face {
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	z-index: 12;
+	margin-left: -100px;
+	display: none;
+}
+
+.surfing #face {
+	display: block;
 }

@@ -19,25 +19,23 @@
     <script type="text/javascript" src="js/emotionmodel.js"></script>
     <script type="text/javascript" src="js/modernizr.js"></script>
     <script type="text/javascript" src="js/tags.js"></script>
-    <script type="text/javascript" src="js/paper.js"></script>
-    <script type="text/paperscript" src="js/waves.js" canvas="waves"></script>
 	<script type="text/javascript" src="js/main.js"></script>
 </head>
-<body>
+<body class="waiting">
 	<main>
 
-		<canvas resize="true" hidpi="off" id="waves"></canvas>
 		<div id="water">
 			<div id="waterTop"></div>
 		</div>
+
 
 		<div id="playBtnWrp">
 			<div id="playBtn">PLAY</div>
 		</div>
 		
 		<div id="webcam">
-			<video width="300px" height="300px"></video>
-			<canvas width="300px" height="300px"></canvas>
+			<video width="200px" height="150px"></video>
+			<canvas id="face" width="200px" height="150px"></canvas>
 		</div>
 
 		<div id="player1" class="player"></div>
