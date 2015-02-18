@@ -8,10 +8,19 @@ window.onYouTubeIframeAPIReady = function() {
 }
 
 $(window).load(function() {
-	$play = $('#playBtn');
+	$play = $('#sun');
 	$waves = $('#waves');
 	$body = $('body');
 	getTag();
+
+	setTimeout(function() {
+		$body.addClass('intro');
+	},1000);
+
+	// var logoBig = document.getElementById("logoBig");
+	// PrefixedEvent(logoBig, "AnimationEnd", function() {
+	// 	$('#logoBig').addClass('plop');
+	// });
 });
 
 function getTag() {
@@ -92,13 +101,13 @@ function onPlayerStateChange(event) {
 
 		$body.addClass('ready').removeClass('waiting');
 
-		var playBtnWrp = document.getElementById("playBtnWrp");
-		PrefixedEvent(playBtnWrp, "AnimationEnd", function() {
-			$('#playBtnWrp').addClass('bobbing');
+		var sunWrap = document.getElementById("sunWrap");
+		PrefixedEvent(sunWrap, "AnimationEnd", function() {
+			$('#sunWrap').addClass('bobbing');
 		});
 
-		$('#playBtn').click(function() {
-			$('#playBtnWrp').removeClass('bobbing');
+		$('#sun').click(function() {
+			$('#sunWrap').removeClass('bobbing');
 			startSurfing();
 		});
 	} else if (stateInt == 1) {
@@ -203,17 +212,31 @@ function initWebcam() {
 ec = new emotionClassifier();
 ec.init(emotionModel);
 emotionData = ec.getBlank();
+var stay;
+var go;
 function drawLoop() {
     requestAnimationFrame(drawLoop);
      ctx.clearRect(0,0,camCan.width,camCan.height);
     if (tracker.getCurrentPosition()) {
     	var cp = tracker.getCurrentParameters();      
-    	var emotion = ec.meanPredict(cp);
-    	if(emotion) {
-	    	var smile = emotion[3].value;
-	    	if(smile > 0.6) {
-	    		// console.log(smile);
-	    	}
+    	var emotions = ec.meanPredict(cp);
+
+    	if(emotions) {
+
+    		var angry = emotions[0];
+    		var sad = emotions[1];
+    		var surprised = emotions[2];
+    		var happy = emotions[3];
+
+    		for (var i=0; i < emotions.length; i++) {
+    			var value = Math.round(emotions[i].value*100);
+
+    			$('#emotions .emotion:eq('+i+')').children('.value').css({
+    				'width': value,
+    				'opacity': value/50
+
+    			});
+    		}
 	    }
       	tracker.draw(camCan);
     }
