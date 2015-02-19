@@ -1,7 +1,9 @@
 var ytReady;
 var player;
-var surfing = false;
 var video;
+var surfing = false;
+var buffering = false;
+var playing = false;
 
 window.onYouTubeIframeAPIReady = function() {
 	ytReady = true;
@@ -20,11 +22,6 @@ $(window).load(function() {
 	setTimeout(function() {
 		$('#logoBig').addClass('bobbing');
 	},2500);
-
-	// var logoBig = document.getElementById("logoBig");
-	// PrefixedEvent(logoBig, "AnimationEnd", function() {
-	// 	$('#logoBig').addClass('plop');
-	// });
 });
 
 function getTag() {
@@ -90,6 +87,7 @@ function onPlayerStateChange(event) {
 
 	if(stateInt != 3) {
 		$body.removeClass('buffering');
+		buffering = false;
 	}
 
 	//If video loaded to rand time and began to play -> pause video and allow user to start
@@ -132,8 +130,16 @@ function onPlayerStateChange(event) {
 		// },1000);
 	} else if (stateInt == 3 && surfing == true) {
 		$body.addClass('buffering');
+		$body.removeClass('playing');
+		buffering = true;
+		playing = false;
 	} else if (stateInt == 0) {
 		queueNewVideo();
+	}
+
+	if (stateInt == 1 && surfing == true) {
+		$body.addClass('playing');
+		playing = true;
 	}
 }
 
@@ -216,21 +222,50 @@ function initWebcam() {
 ec = new emotionClassifier();
 ec.init(emotionModel);
 emotionData = ec.getBlank();
-var stay;
-var go;
+var dislike = 0;
+var like = 0;
+var scanCount = 0;
+var responding = false;
 function drawLoop() {
     requestAnimationFrame(drawLoop);
      ctx.clearRect(0,0,camCan.width,camCan.height);
     if (tracker.getCurrentPosition()) {
     	var cp = tracker.getCurrentParameters();      
     	var emotions = ec.meanPredict(cp);
+    	if(emotions && playing) {
+    		var angry = emotions[0].value;
+    		var sad = emotions[1].value;
+    		var surprised = emotions[2].value;
+    		var happy = emotions[3].value;
+    		var emotionalValues = [angry, sad, surprised, happy];
+    		scanCount+=1;
+    		if(scanCount >= 1000) {
+    			scanCount = 0;
+    			dislike = 0;
+    			like = 0;
+    		}
+    		dislike = dislike + (angry + sad - happy - surprised);
 
-    	if(emotions) {
-
-    		var angry = emotions[0];
-    		var sad = emotions[1];
-    		var surprised = emotions[2];
-    		var happy = emotions[3];
+    		if(dislike >= 75) {
+    			scanCount = 0;
+    			dislike = 0;
+    			like = 0;
+    			console.log('NEW VIDEO');
+    			queueNewVideo();
+    			if (responding == false) {
+	    			var maxValue = Math.max.apply(null, emotionalValues);
+	    			var maxIndex = emotionalValues.indexOf(maxValue);
+	    			var maxEmotion = emotions[maxIndex].emotion;
+    				respond(maxEmotion);
+    			}
+    		} else if(dislike <= -50) {
+    			if (responding == false) {
+	    			var maxValue = Math.max.apply(null, emotionalValues);
+	    			var maxIndex = emotionalValues.indexOf(maxValue);
+	    			var maxEmotion = emotions[maxIndex].emotion;
+    				respond(maxEmotion);
+    			}
+    		}
 
     		for (var i=0; i < emotions.length; i++) {
     			var value = Math.round(emotions[i].value*100);
@@ -238,10 +273,23 @@ function drawLoop() {
     			$('#emotions .emotion:eq('+i+')').children('.value').css({
     				'width': value,
     				'opacity': value/50
-
     			});
     		}
 	    }
       	tracker.draw(camCan);
     }
+}
+
+function respond(emotion) {
+	responding = true;
+	console.log(emotion);
+	var types = ['text', 'emoticon'];
+	var type = types[Math.round(Math.random(1))];
+	var possibleResponse = responses[emotion][type];
+	var response = possibleResponse[Math.round(Math.random(possibleResponse.length))];
+	console.log(response);
+
+	setTimeout(function() {
+		responding = false;
+	}, 3000);
 }

@@ -38,6 +38,8 @@ main {
 .surfing #logoBig {
 	height: 130px;
 	width: calc(50% - 150px);
+	width: -moz-calc(50% - 150px);
+	width: -webkit-calc(50% - 150px);
 	background-size: 200px;
 	background-image: url(img/script-logo-pink.svg);
 	transition: height 300ms ease, background-size 300ms ease, width 300ms ease 700ms, background-image 0ms step-end 400ms;
