@@ -1,13 +1,6 @@
-@font-face {
-	font-family: 'Neue Haas Grotesk';
-	src: url('fonts/neue-haas-grotesk.eot');
-	src: url('fonts/neue-haas-grotesk.eot?#iefix') format('embedded-opentype'),
-		 url('fonts/neue-haas-grotesk.woff') format('woff'),
-		 url('fonts/neue-haas-grotesk.ttf') format('truetype');
-}
 html {
 	height: 100%;
-	font-family: 'Neue Haas Grotesk';
+	font-family: 'gentona';
 }
 body {
 	margin: 0;
@@ -31,7 +24,7 @@ main {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	top: 0;
+	bottom: 0;
 	left: 0;
 	background-image: url(img/script-logo.svg);
 	background-repeat: no-repeat;
@@ -41,12 +34,18 @@ main {
 	transform: translateY(10px);
 	-moz-transform: translateY(10px);
 	-webkit-transform: translateY(10px);
-	animation: logo-bob 3.5s ease 2000ms infinite;
-	-moz-animation: logo-bob 3.5s ease 2000ms infinite;
-	-webkit-animation: logo-bob 3.5s ease 2000ms infinite;	
+}
+.surfing #logoBig {
+	height: 130px;
+	width: calc(50% - 150px);
+	background-size: 200px;
+	background-image: url(img/script-logo-pink.svg);
+	transition: height 300ms ease, background-size 300ms ease, width 300ms ease 700ms, background-image 0ms step-end 400ms;
 }
 #logoBig.bobbing {
-
+	animation: logo-bob 3.5s ease infinite;
+	-moz-animation: logo-bob 3.5s ease infinite;
+	-webkit-animation: logo-bob 3.5s ease infinite;	
 }
 @-webkit-keyframes logo-bob {
 	0% {
@@ -97,8 +96,14 @@ main {
 	z-index: 11;
 }
 .water#front {
-	opacity: .8;
+	opacity: .6;
 	z-index: 13;
+}
+.surfing .water#front {
+	opacity: 0;
+	transition: opacity 1000ms ease;
+	-moz-transition: opacity 1000ms ease;
+	-webkit-transition: opacity 1000ms ease;
 }
 .intro .water {
 	transform: translateY(0);
@@ -158,11 +163,11 @@ main {
 
 #sun {
 	position: absolute;
-	width: 300px;
-	height: 300px;
+	width: 400px;
+	height: 400px;
 	left: 50%;
 	top: 50%;
-	margin: -150px 0 0 -150px;
+	margin: -200px 0 0 -200px;
 	color: transparent;
 	/*background: #7e80fe;*/
 	background: #f5cd00;
@@ -182,23 +187,8 @@ main {
 	position: absolute;
 	height: 100%;
 	width: 100%;
-	transform: translateY(-100%);
-	-moz-transform: translateY(-100%);
-	-webkit-transform: translateY(-100%);
 }
-.waiting #sunWrap {
-	transform: translateY(-100%);
-	-moz-transform: translateY(-100%);
-	-webkit-transform: translateY(-100%);
-}
-.intro #sunWrap {
-	display: block;
-	
-	/*transform: translateY(0%) scale(1) scaleY(1);
-	-moz-transform: -moz-translateY(0%) scale(1) scaleY(1);
-	-webkit-transform: -webkit-translateY(0%) scale(1) scaleY(1);*/		
-	visibility: visible !important;	
-}
+
 @-webkit-keyframes plop {
 	0% {
 		-webkit-transform: translateY(-100%) scale(0.6) scaleY(0.5);
@@ -271,14 +261,27 @@ main {
 	}	
 }
 .surfing #sunWrap {
-	z-index: 12;
+	z-index: 14;
+
 	transition: z-index 0.3s step-end;
-	/*animation: drop 0.4s ease;
-	-moz-animation: drop 0.4s ease;*/
+	-moz-transition: z-index 0.3s step-end;
+	-webkit-transition: z-index 0.3s step-end;
+
+	animation: drop 1s ease;
+	-moz-animation: drop 1s ease;
 	-webkit-animation: drop 1s ease;
 
 	transform: translateY(49%);
 	-moz-transform: translateY(49%);
+	-webkit-transform: translateY(49%);
+}
+.surfing #sunWrap #sun {
+	width: 300px;
+	height: 300px;
+	margin: -150px 0 0 -150px;
+	transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-webkit-transition: all 0.3s ease;
 }
 @-webkit-keyframes drop {
 	0% {
@@ -293,6 +296,58 @@ main {
 	100% {
 		-webkit-transform: translateY(49%);	
 	}
+}
+@-moz-keyframes drop {
+	0% {
+		-moz-transform: translateY(0);
+	}
+	15% {
+		-moz-transform: translateY(0);
+	}
+	60% {
+		-moz-transform: translateY(52%);
+	}
+	100% {
+		-moz-transform: translateY(49%);	
+	}
+}
+@keyframes drop {
+	0% {
+		transform: translateY(0);
+	}
+	15% {
+		transform: translateY(0);
+	}
+	60% {
+		transform: translateY(52%);
+	}
+	100% {
+		transform: translateY(49%);	
+	}
+}
+
+#surf {
+	position: fixed;
+	z-index: 14;
+	left: 0;
+	bottom: 100px;
+	width: 100%;
+	text-align: center;
+	cursor: pointer;
+	font-size: 60px;
+	font-weight: 700;
+	color: #f5cd11;
+	transform: translateY(200px);
+	-moz-transform: -moz-translateY(200px);
+	-webkit-transform: -webkit-translateY(200px);
+	transition: transform 400ms ease;
+	-moz-transition: -moz-transform 400ms ease;
+	-webkit-transition: -webkit-transform 400ms ease;
+}
+.ready #surf {
+	transform: translateY(0);
+	-moz-transform: -moz-translateY(0);
+	-webkit-transform: -webkit-translateY(0);
 }
 .player {
 	position: absolute;
@@ -332,7 +387,7 @@ video {
 	position: fixed;
 	bottom: 0;
 	left: 50%;
-	z-index: 12;
+	z-index: 14;
 	margin-left: -100px;
 	display: none;
 }

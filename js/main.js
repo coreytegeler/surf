@@ -8,7 +8,7 @@ window.onYouTubeIframeAPIReady = function() {
 }
 
 $(window).load(function() {
-	$play = $('#sun');
+	$play = $('#surf');
 	$waves = $('#waves');
 	$body = $('body');
 	getTag();
@@ -16,6 +16,10 @@ $(window).load(function() {
 	setTimeout(function() {
 		$body.addClass('intro');
 	},1000);
+
+	setTimeout(function() {
+		$('#logoBig').addClass('bobbing');
+	},2500);
 
 	// var logoBig = document.getElementById("logoBig");
 	// PrefixedEvent(logoBig, "AnimationEnd", function() {
@@ -106,8 +110,8 @@ function onPlayerStateChange(event) {
 			$('#sunWrap').addClass('bobbing');
 		});
 
-		$('#sun').click(function() {
-			$('#sunWrap').removeClass('bobbing');
+		$play.click(function() {
+			$('#logoBig').removeClass('bobbing');
 			startSurfing();
 		});
 	} else if (stateInt == 1) {
@@ -136,7 +140,7 @@ function onPlayerStateChange(event) {
 function startSurfing() {
 	surfing = true;
 	video.playVideo();
-	$body.removeClass('ready');
+	$body.removeClass('ready intro');
 	$body.addClass('surfing');
 }
 
