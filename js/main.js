@@ -28,7 +28,30 @@ function getTag() {
 	var l = tags.length;
 	var i = rand(l);
 	var tag = tags[i];
-	findVideos(tag);
+	// findVideos(tag);
+	authorize();
+}
+
+function authorize() {
+	var base = "https://accounts.google.com/o/oauth2/auth";
+	var client_id = "936413705890-i0fdiflilt20fta2g6l7892uq2i09qg6.apps.googleusercontent.com";
+	var redirect_uri = "https://www.coreytegeler.com/";
+	var scope = "https://www.googleapis.com/auth/youtube.readonly";
+	var response_type = "token";
+	var authUri = base + "?client_id=" + client_id + "&redirect_uri=" + redirect_uri + "&scope=" + scope + "&response_type=" + response_type;
+	$.ajax({
+		type: "GET",
+		url: authUri,
+		xhrFields: {
+			withCredentials: false
+		},
+		headers: {
+			AccessControlAllowOrigin: "*"
+		},
+		success: function() {
+			console.log('Woo!')
+		}
+	});
 }
 
 var queriedVideos;
@@ -214,7 +237,7 @@ function initWebcam() {
 		drawLoop();
       });
     }, function() {
-      alert('Failed');
+      // alert('Failed');
     });
   }
 }
