@@ -328,6 +328,32 @@ main {
 	}
 }
 
+#instructions {
+	position: fixed;
+	bottom: 0;
+	height: 50%;
+	width: 100%;
+	z-index: 14;
+}
+#instructions .slide {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: none;
+}
+#instructions .slide:first-child {
+	display: table;
+}
+#instructions .slide .text {
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 30px;
+	font-weight: 600;
+	opacity: .7;
+}
 #surf {
 	position: fixed;
 	z-index: 14;
@@ -346,12 +372,12 @@ main {
 	-moz-transition: -moz-transform 400ms ease;
 	-webkit-transition: -webkit-transform 400ms ease;
 }
-.ready #surf {
+/*.ready #surf {
 	transform: translateY(0);
 	-moz-transform: -moz-translateY(0);
 	-webkit-transform: -webkit-translateY(0);
 }
-
+*/
 #auth{
 	position: fixed;
 	z-index: 14;

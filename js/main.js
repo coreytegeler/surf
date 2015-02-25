@@ -28,8 +28,8 @@ function getTag() {
 	var l = tags.length;
 	var i = rand(l);
 	var tag = tags[i];
-	// findVideos(tag);
-	authorize();
+	findVideos(tag);
+	// authorize();
 }
 
 function authorize() {
