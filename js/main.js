@@ -17,12 +17,26 @@ $(window).load(function() {
 
 	setTimeout(function() {
 		$body.addClass('intro');
+		instructions();
 	},1000);
 
 	setTimeout(function() {
 		$('#logoBig').addClass('bobbing');
 	},2500);
 });
+
+function instructions() {
+	$slides = $('#instructions .slide');
+	setTimeout(function() {
+		$slides.eq(0).addClass('show');
+	},1400);
+	var slideCount = $slides.length;
+	$slides.children('.inner').children('.text').children('.next').click(function() {
+		$slide = $(this).parent('.text').parent('.inner').parent('.slide');
+		$slide.addClass('done');
+		$($slide[0].nextElementSibling).addClass('show');
+	});
+}
 
 function getTag() {
 	var l = tags.length;
@@ -220,7 +234,6 @@ $(document).ready(function() {
 	camVid = camBox.getElementsByTagName('video')[0];
 	camCan = camBox.getElementsByTagName('canvas')[0];
 	ctx = camCan.getContext('2d');
-	initWebcam();
 });
 
 var tracker = new clm.tracker();
