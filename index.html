@@ -9,7 +9,7 @@
 	<meta name="author" content="" />
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
 	<title>YouTubular</title>
-	<link href='fonts/gentona.css' rel='stylesheet' type='text/css'>
+	<link href='fonts/fonts.css' rel='stylesheet' type='text/css'>
 	<link href='style.css' rel='stylesheet' type='text/css'>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 	<script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
@@ -27,30 +27,30 @@
 	<main>
 
 		<div id="instructions">
-			<div class="slide">
+			<div class="slide" id="begin">
 				<div class="inner">
 					<div class="text">
 						<span>Surf through YouTube like never before.</span>
-						<br/>
-						<span>Effort and thought not required.</span>
-						<div class="next">Begin</div>
+						<!-- <br/> -->
+						<!-- <span class="sub">Effort and thought not required.</span> -->
+						<div class="next"><img src="img/begin.svg"/></div>
 					</div>
 				</div>
 			</div>
-			<div class="slide">
+			<div class="slide" id="ask-permission">
 				<div class="inner">
 					<div class="text">
-						<span>Before we start, you'll need to allow access to your webcam so we'll know how you feel about what you're watching.</span>
-
-						<div class="next">Okay</div>
+						<span>Before we start, you'll need to allow access to your webcam. </span>
+						<!-- <span class="sub">Wouldn't it be great if we knew how you felt about what you're watching so we can make your experience better.</span> -->
+						<!-- <div class="next disabled"><img src="img/okay.svg"/></div> -->
 					</div>
 				</div>
 			</div>
-			<div class="slide">
+			<div class="slide" id="start-surfing">
 				<div class="inner">
 					<div class="text">
-						<span>Radical! Ready to start?</span>
-						<div class="next">Let's surf!</div>
+						<span>Radical! You're all ready.</span>
+						<div class="next"><img src="img/surf.svg"/></div>
 					</div>
 				</div>
 			</div>
@@ -90,6 +90,10 @@
 					<span class="value"></span>
 				</li>
 			</ul>
+		</div>
+
+		<div id="responses">
+			
 		</div>
 
 

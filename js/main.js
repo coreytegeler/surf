@@ -31,11 +31,39 @@ function instructions() {
 		$slides.eq(0).addClass('show');
 	},1400);
 	var slideCount = $slides.length;
-	$slides.children('.inner').children('.text').children('.next').click(function() {
-		$slide = $(this).parent('.text').parent('.inner').parent('.slide');
-		$slide.addClass('done');
-		$($slide[0].nextElementSibling).addClass('show');
+
+	$('#instructions .slide#begin .next').click(function() {
+		$('#instructions .slide#begin').addClass('done');
+		$('#instructions .slide#ask-permission').addClass('show');
+		setTimeout(function() {
+			initWebcam();
+		},500);
 	});
+
+	$('#instructions .slide#start-surfing .next').click(function() {
+		$('#instructions .slide#start-surfing').addClass('done');
+		startSurfing();
+	});
+
+
+
+	// $slides.children('.inner').children('.text').children('.next').click(function() {
+	// 	$slide = $(this).parent('.text').parent('.inner').parent('.slide');
+
+	// 	$slide.addClass('done');
+
+	// 	if($slide.is(':first-child')) {
+	// 		setTimeout(function() {
+	// 			initWebcam();
+	// 		},500);
+	// 	}
+
+	// 	if(!$slide.is(':last-child')) {
+	// 		$($slide[0].nextElementSibling).addClass('show');
+	// 	} else {
+	// 		startSurfing();
+	// 	}
+	// });
 }
 
 function getTag() {
@@ -244,6 +272,8 @@ function initWebcam() {
       stream = localMediaStream;
       camVid.src = window.URL.createObjectURL(stream);
       $('#webcam video').on('loadedmetadata', function() {
+      	$('#instructions .slide#ask-permission').addClass('done');
+      	$('#instructions .slide#start-surfing').addClass('show');
         tracker.init(pModel);
         camVid.play();
 		tracker.start(camVid);
@@ -264,55 +294,66 @@ var scanCount = 0;
 var responding = false;
 function drawLoop() {
     requestAnimationFrame(drawLoop);
-     ctx.clearRect(0,0,camCan.width,camCan.height);
+    ctx.clearRect(0,0,camCan.width,camCan.height);
     if (tracker.getCurrentPosition()) {
-    	var cp = tracker.getCurrentParameters();      
-    	var emotions = ec.meanPredict(cp);
-    	if(emotions && playing) {
-    		var angry = emotions[0].value;
-    		var sad = emotions[1].value;
-    		var surprised = emotions[2].value;
-    		var happy = emotions[3].value;
-    		var emotionalValues = [angry, sad, surprised, happy];
-    		scanCount+=1;
-    		if(scanCount >= 1000) {
-    			scanCount = 0;
-    			dislike = 0;
-    			like = 0;
-    		}
-    		dislike = dislike + (angry + sad - happy - surprised);
+    	var accuracy = tracker.getScore();
+    	$('#face').css({'opacity': Math.round(accuracy*10)/10});
+    	if (accuracy > 0.7) {
+	    	var cp = tracker.getCurrentParameters();      
+	    	var emotions = ec.meanPredict(cp);
+	    	if(emotions && playing) {
+	    		var angry = emotions[0].value;
+	    		var sad = emotions[1].value;
+	    		var surprised = emotions[2].value;
+	    		var happy = emotions[3].value;
+	    		var emotionalValues = [angry, sad, surprised, happy];
+	    		scanCount+=1;
+	    		if(scanCount >= 1000) {
+	    			scanCount = 0;
+	    			dislike = 0;
+	    			like = 0;
+	    		}
+	    		dislike = dislike + (angry + sad - happy - surprised);
 
-    		if(dislike >= 75) {
-    			scanCount = 0;
-    			dislike = 0;
-    			like = 0;
-    			console.log('NEW VIDEO');
-    			queueNewVideo();
-    			if (responding == false) {
-	    			var maxValue = Math.max.apply(null, emotionalValues);
-	    			var maxIndex = emotionalValues.indexOf(maxValue);
-	    			var maxEmotion = emotions[maxIndex].emotion;
-    				respond(maxEmotion);
-    			}
-    		} else if(dislike <= -50) {
-    			if (responding == false) {
-	    			var maxValue = Math.max.apply(null, emotionalValues);
-	    			var maxIndex = emotionalValues.indexOf(maxValue);
-	    			var maxEmotion = emotions[maxIndex].emotion;
-    				respond(maxEmotion);
-    			}
-    		}
+	    		if(dislike >= 25) {
+	    			scanCount = 0;
+	    			dislike = 0;
+	    			like = 0;
+	    			console.log('NEW VIDEO');
+	    			queueNewVideo();
+	    			if (responding == false) {
+		    			var maxValue = Math.max.apply(null, emotionalValues);
+		    			var maxIndex = emotionalValues.indexOf(maxValue);
+		    			var maxEmotion = emotions[maxIndex].emotion;
+	    				respond(maxEmotion);
+	    			}
+	    		} else if(dislike <= -50) {
+	    			if (responding == false) {
+		    			var maxValue = Math.max.apply(null, emotionalValues);
+		    			var maxIndex = emotionalValues.indexOf(maxValue);
+		    			var maxEmotion = emotions[maxIndex].emotion;
+	    				respond(maxEmotion);
+	    			}
+	    		}
 
-    		for (var i=0; i < emotions.length; i++) {
-    			var value = Math.round(emotions[i].value*100);
+	    		for (var i=0; i < emotions.length; i++) {
+	    			var value = Math.round(emotions[i].value*100);
 
-    			$('#emotions .emotion:eq('+i+')').children('.value').css({
-    				'width': value,
-    				'opacity': value/50
-    			});
+	    			$('#emotions .emotion:eq('+i+')').children('.value').css({
+	    				'width': value,
+	    				'opacity': value/50
+	    			});
+	    		}
+		    }
+		} else {
+			for (var i=0; i < 4; i++) {
+    			$('#emotions .emotion:eq('+i+')').children('.value').animate({
+    				'width': 0,
+    				'opacity': 0
+    			},300);
     		}
-	    }
-      	tracker.draw(camCan);
+		}
+	    tracker.draw(camCan);
     }
 }
 
@@ -323,7 +364,8 @@ function respond(emotion) {
 	var type = types[Math.round(Math.random(1))];
 	var possibleResponse = responses[emotion][type];
 	var response = possibleResponse[Math.round(Math.random(possibleResponse.length))];
-	console.log(response);
+	
+	$('#responses').append($('<div class="response"></div>').append($('<div class="text"></div>')).text(response)).fadeIn(200);
 
 	setTimeout(function() {
 		responding = false;

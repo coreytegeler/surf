@@ -331,7 +331,7 @@ main {
 #instructions {
 	position: fixed;
 	bottom: 0;
-	height: 50%;
+	height: 40%;
 	width: 100%;
 	z-index: 14;
 }
@@ -375,19 +375,32 @@ main {
 	display: table-cell;
 	vertical-align: middle;
 	text-align: center;
-}
-#instructions .slide .text {
-	font-size: 30px;
+	font-size: 50px;
 	font-weight: 600;
-	opacity: .7;
+	color: black;
+	text-transform: uppercase;
+	text-shadow: 0px 3px 0px rgba(0,0,0,0.15);
+}
+#instructions .slide .text .sub {
+	font-size: 20px;
+	line-height: 25px;
+	font-weight: 400;
 }
 #instructions .slide .text .next {
 	margin: 20px 0 0 0;
-	font-size: 35px;
+	font-size: 65px;
 	font-weight: 500;
-	opacity: .9;
+	font-family: 'Rage Italic';
 	cursor: pointer;
+	text-transform: none;
 }
+#instructions .slide .text .next.disabled {
+	opacity: .5;
+}
+#instructions .slide .text .next img {
+	height: 100px;
+}
+
 #surf {
 	position: fixed;
 	z-index: 14;
@@ -503,6 +516,7 @@ video {
 #emotions .emotion .name {
 	font-weight: 400;
 	color: #f6a6a8;
+	text-shadow: 2px 0px 0px rgba(0,0,0,0.15);
 }
 #emotions .emotion .value {
 	font-weight: 700;
@@ -510,4 +524,29 @@ video {
 	height: 16px;
 	display: inline-block;
 }
-
+#responses {
+	position: fixed;
+	bottom: 0;
+	right: 50%;
+	width: 50%;
+	height: 100px;
+	z-index: 14;
+	text-align: middle;
+	display: table;
+}
+#responses .response {
+	color: #f6a6a8;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background: #009dec;
+	display: table;
+}
+#responses .response .text {
+	font-size: 45px;
+	text-shadow: 2px 0px 0px rgba(0,0,0,0.15);
+	display: table-cell;
+	vertical-align: middle;
+}
