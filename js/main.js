@@ -292,13 +292,14 @@ var dislike = 0;
 var like = 0;
 var scanCount = 0;
 var responding = false;
+var inaccuracy = 0;
 function drawLoop() {
     requestAnimationFrame(drawLoop);
     ctx.clearRect(0,0,camCan.width,camCan.height);
     if (tracker.getCurrentPosition()) {
     	var accuracy = tracker.getScore();
     	$('#face').css({'opacity': Math.round(accuracy*10)/10});
-    	if (accuracy > 0.7) {
+    	if (accuracy > 0.75) {
 	    	var cp = tracker.getCurrentParameters();      
 	    	var emotions = ec.meanPredict(cp);
 	    	if(emotions && playing) {
@@ -345,7 +346,19 @@ function drawLoop() {
 	    			});
 	    		}
 		    }
+		    if($('body').hasClass('surfing') && $('body').hasClass('paused')) {
+		    	$('body').removeClass('paused');
+		    	player.playVideo();
+		    }
+		
 		} else {
+			inaccuracy = inaccuracy + 1;
+			console.log(inaccuracy);
+			if($('body').hasClass('surfing') && inaccuracy > 300) {
+				inaccuracy = 0;
+				$('body').addClass('paused');
+				player.pauseVideo();
+			}
 			for (var i=0; i < 4; i++) {
     			$('#emotions .emotion:eq('+i+')').children('.value').animate({
     				'width': 0,
@@ -364,10 +377,11 @@ function respond(emotion) {
 	var type = types[Math.round(Math.random(1))];
 	var possibleResponse = responses[emotion][type];
 	var response = possibleResponse[Math.round(Math.random(possibleResponse.length))];
-	
-	$('#responses').append($('<div class="response"></div>').append($('<div class="text"></div>')).text(response)).fadeIn(200);
+	$('body').addClass('responding');
+	$('#responses .response .text').text(response);
 
 	setTimeout(function() {
 		responding = false;
+		$('body').removeClass('responding');
 	}, 3000);
 }
