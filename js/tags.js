@@ -322,7 +322,6 @@ tags = [
 	'movie', 
 	'download', 
 	'horny', 
-	'quickscope', 
 	'free', 
 	'lobby', 
 	'hard', 

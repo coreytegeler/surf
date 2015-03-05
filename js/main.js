@@ -21,7 +21,7 @@ $(window).load(function() {
 	},1000);
 
 	setTimeout(function() {
-		$('#logoBig').addClass('bobbing');
+		$('#logo').addClass('bobbing');
 	},2500);
 });
 
@@ -91,7 +91,7 @@ function authorize() {
 			AccessControlAllowOrigin: "*"
 		},
 		success: function() {
-			console.log('Woo!')
+			// console.log('Woo!')
 		}
 	});
 }
@@ -174,7 +174,7 @@ function onPlayerStateChange(event) {
 		});
 
 		$play.click(function() {
-			$('#logoBig').removeClass('bobbing');
+			$('#logo').removeClass('bobbing');
 			startSurfing();
 		});
 	} else if (stateInt == 1) {
@@ -299,74 +299,71 @@ function drawLoop() {
     if (tracker.getCurrentPosition()) {
     	var accuracy = tracker.getScore();
     	$('#face').css({'opacity': Math.round(accuracy*10)/10});
-    	if (accuracy > 0.75) {
-	    	var cp = tracker.getCurrentParameters();      
-	    	var emotions = ec.meanPredict(cp);
-	    	if(emotions && playing) {
-	    		var angry = emotions[0].value;
-	    		var sad = emotions[1].value;
-	    		var surprised = emotions[2].value;
-	    		var happy = emotions[3].value;
-	    		var emotionalValues = [angry, sad, surprised, happy];
-	    		scanCount+=1;
-	    		if(scanCount >= 1000) {
-	    			scanCount = 0;
-	    			dislike = 0;
-	    			like = 0;
-	    		}
-	    		dislike = dislike + (angry + sad - happy - surprised);
-
-	    		if(dislike >= 25) {
-	    			scanCount = 0;
-	    			dislike = 0;
-	    			like = 0;
-	    			console.log('NEW VIDEO');
-	    			queueNewVideo();
-	    			if (responding == false) {
-		    			var maxValue = Math.max.apply(null, emotionalValues);
-		    			var maxIndex = emotionalValues.indexOf(maxValue);
-		    			var maxEmotion = emotions[maxIndex].emotion;
-	    				respond(maxEmotion);
-	    			}
-	    		} else if(dislike <= -50) {
-	    			if (responding == false) {
-		    			var maxValue = Math.max.apply(null, emotionalValues);
-		    			var maxIndex = emotionalValues.indexOf(maxValue);
-		    			var maxEmotion = emotions[maxIndex].emotion;
-	    				respond(maxEmotion);
-	    			}
-	    		}
-
-	    		for (var i=0; i < emotions.length; i++) {
-	    			var value = Math.round(emotions[i].value*100);
-
-	    			$('#emotions .emotion:eq('+i+')').children('.value').css({
-	    				'width': value,
-	    				'opacity': value/50
-	    			});
-	    		}
-		    }
-		    if($('body').hasClass('surfing') && $('body').hasClass('paused')) {
-		    	$('body').removeClass('paused');
-		    	player.playVideo();
-		    }
-		
-		} else {
-			inaccuracy = inaccuracy + 1;
-			console.log(inaccuracy);
-			if($('body').hasClass('surfing') && inaccuracy > 300) {
-				inaccuracy = 0;
-				$('body').addClass('paused');
-				player.pauseVideo();
-			}
-			for (var i=0; i < 4; i++) {
-    			$('#emotions .emotion:eq('+i+')').children('.value').animate({
-    				'width': 0,
-    				'opacity': 0
-    			},300);
+    	var cp = tracker.getCurrentParameters();      
+    	var emotions = ec.meanPredict(cp);
+    	if(emotions && playing) {
+    		var angry = emotions[0].value;
+    		var sad = emotions[1].value;
+    		var surprised = emotions[2].value;
+    		var happy = emotions[3].value;
+    		var emotionalValues = [angry, sad, surprised, happy];
+    		scanCount+=1;
+    		if(scanCount >= 1000) {
+    			scanCount = 0;
+    			dislike = 0;
+    			like = 0;
     		}
-		}
-	    tracker.draw(camCan);
+    		dislike = dislike + (angry + sad - happy - surprised);
+
+    		if(dislike >= 25) {
+    			scanCount = 0;
+    			dislike = 0;
+    			like = 0;
+    			queueNewVideo();
+    			if (responding == false) {
+	    			var maxValue = Math.max.apply(null, emotionalValues);
+	    			var maxIndex = emotionalValues.indexOf(maxValue);
+	    			var maxEmotion = emotions[maxIndex].emotion;
+    				respond(maxEmotion);
+    			}
+    		} else if(dislike <= -50) {
+    			if (responding == false) {
+	    			var maxValue = Math.max.apply(null, emotionalValues);
+	    			var maxIndex = emotionalValues.indexOf(maxValue);
+	    			var maxEmotion = emotions[maxIndex].emotion;
+    				respond(maxEmotion);
+    			}
+    		}
+
+    		for (var i=0; i < emotions.length; i++) {
+    			var value = Math.round(emotions[i].value*100);
+
+    			$('#emotions .emotion:eq('+i+')').children('.value').css({
+    				'width': value,
+    				'opacity': value/50
+    			});
+    		}
+
+	    	if (accuracy < 0.75 && $('body').hasClass('surfing')) {
+	    		inaccuracy = inaccuracy + 1;
+				if(inaccuracy > 300) {
+					inaccuracy = 0;
+					$('body').addClass('paused');
+					player.pauseVideo();
+					for (var i=0; i < 4; i++) {
+		    			$('#emotions .emotion:eq('+i+')').children('.value').animate({
+		    				'width': 0,
+		    				'opacity': 0
+		    			},300);
+		    		}
+		    	}
+		    	else {
+		    		$('body').removeClass('paused');
+	    			player.playVideo();
+		    	}
+			}	
+	    }
+		tracker.draw(camCan);
     }
 }
 
@@ -375,11 +372,19 @@ function respond(emotion) {
 	console.log(emotion);
 	var types = ['text', 'emoticon'];
 	var type = types[Math.round(Math.random(1))];
-	var possibleResponse = responses[emotion][type];
-	var response = possibleResponse[Math.round(Math.random(possibleResponse.length))];
+	var responsesArray = responses[emotion][type];
+	var response = responsesArray[Math.round(Math.random(responseArray.length))];
 	$('body').addClass('responding');
+
+	$('#responses .response.show').removeClass('show');
+
+	$('#responses').append($('<div class="response"><div class="text"></div></div>'));
+
 	$('#responses .response .text').text(response);
 
+	$('#responses .response').addClass('show');
+
+	$('#responses .response').addClass('show');
 	setTimeout(function() {
 		responding = false;
 		$('body').removeClass('responding');
