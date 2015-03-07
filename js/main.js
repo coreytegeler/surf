@@ -13,7 +13,7 @@ $(window).load(function() {
 	$play = $('#surf');
 	$waves = $('#waves');
 	$body = $('body');
-	getTag();
+	findVideos();
 
 	setTimeout(function() {
 		$body.addClass('intro');
@@ -32,7 +32,7 @@ function instructions() {
 	},1400);
 	var slideCount = $slides.length;
 
-	$('#instructions .slide#begin .next').click(function() {
+	$('#instructions .slide#begin .next img').click(function() {
 		$('#instructions .slide#begin').addClass('done');
 		$('#instructions .slide#ask-permission').addClass('show');
 		setTimeout(function() {
@@ -40,12 +40,22 @@ function instructions() {
 		},500);
 	});
 
-	$('#instructions .slide#start-surfing .next').click(function() {
+	$('#instructions .slide#start-surfing .next img').click(function() {
 		$('#instructions .slide#start-surfing').addClass('done');
 		startSurfing();
 	});
 
-
+	$('#instructions .slide .next img').hover(function() {
+		$img = $(this);
+		var url = $img.attr('src');
+		var newUrl = url.replace("-w.svg", ".svg");
+		$img.attr('src', newUrl);
+	}, function() {
+		$img = $(this);
+		var url = $img.attr('src');
+		var newUrl = url.replace(".svg", "-w.svg");
+		$img.attr('src', newUrl);
+	});
 
 	// $slides.children('.inner').children('.text').children('.next').click(function() {
 	// 	$slide = $(this).parent('.text').parent('.inner').parent('.slide');
@@ -64,14 +74,6 @@ function instructions() {
 	// 		startSurfing();
 	// 	}
 	// });
-}
-
-function getTag() {
-	var l = tags.length;
-	var i = rand(l);
-	var tag = tags[i];
-	findVideos(tag);
-	// authorize();
 }
 
 function authorize() {
@@ -96,16 +98,21 @@ function authorize() {
 	});
 }
 
-var queriedVideos;
-function findVideos(tag) {
-	console.log(tag);
+var queriedVideos = [];
+function findVideos() {
+	var l = tags.length;
+	var i = rand(l) - 1;
+	var tag = tags[i];
+	console.log(i, l, tag);
 	var key = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
 	var order = 'rating';
 	var query = tag;
-	var queryCount = 50;
+	var queryCount = 3;
 	var yt = 'https://www.googleapis.com/youtube/v3/search?order=' + order + '&part=id&q=' + query + '&maxResults=' + queryCount + '&key=' + key;
 	$.get( yt, function(data) {
-	  queriedVideos = data.items;
+	  for (var i = 0; i < data.items.length; i++) {
+	  	queriedVideos.push(data.items[i]);	
+	  }
 	  if (surfing == false) {
 	  	setupPlayer();
 	  } else {
@@ -168,11 +175,6 @@ function onPlayerStateChange(event) {
 
 		$body.addClass('ready').removeClass('waiting');
 
-		var sunWrap = document.getElementById("sunWrap");
-		PrefixedEvent(sunWrap, "AnimationEnd", function() {
-			$('#sunWrap').addClass('bobbing');
-		});
-
 		$play.click(function() {
 			$('#logo').removeClass('bobbing');
 			startSurfing();
@@ -213,15 +215,18 @@ function startSurfing() {
 	video.playVideo();
 	$body.removeClass('ready intro');
 	$body.addClass('surfing');
+	$('#logo').addClass('surfing');
 }
-
-function queueNewVideo(event) {
-	var queryCount = queriedVideos.length;
-	var index = rand(queryCount) - 1;
-	var queriedVideo = queriedVideos[index];
+var queryIndex = 0;
+function queueNewVideo() {
+	var queriedVideo = queriedVideos[queryIndex];
 	var id = queriedVideo.id.videoId;
 	player.loadVideoById(id);
 	player.setVolume(0);
+	queryIndex = queryIndex + 1;
+	if(queryIndex == queriedVideos.length - 1) {
+		findVideos();
+	}
 }
 
 function stopVideo() {
@@ -326,8 +331,9 @@ function drawLoop() {
 	    			var maxEmotion = emotions[maxIndex].emotion;
     				respond(maxEmotion);
     			}
-    		} else if(dislike <= -50) {
+    		} else if(dislike <= -100) {
     			if (responding == false) {
+    				dislike = 0;
 	    			var maxValue = Math.max.apply(null, emotionalValues);
 	    			var maxIndex = emotionalValues.indexOf(maxValue);
 	    			var maxEmotion = emotions[maxIndex].emotion;
@@ -372,21 +378,21 @@ function respond(emotion) {
 	console.log(emotion);
 	var types = ['text', 'emoticon'];
 	var type = types[Math.round(Math.random(1))];
-	var responsesArray = responses[emotion][type];
-	var response = responsesArray[Math.round(Math.random(responseArray.length))];
-	$('body').addClass('responding');
+	var responseArray = responses[emotion][type];
+	var response = responseArray[Math.round(Math.random(responseArray.length))];
+	console.log(response);
+	$('#logo').addClass('hide');
+	$('#responses .response').removeClass('show');
+	setTimeout(function() {
+		$('#responses .response .text').text(response);
+		$('#responses .response').addClass('show');
+	}, 350);
 
-	$('#responses .response.show').removeClass('show');
-
-	$('#responses').append($('<div class="response"><div class="text"></div></div>'));
-
-	$('#responses .response .text').text(response);
-
-	$('#responses .response').addClass('show');
-
-	$('#responses .response').addClass('show');
 	setTimeout(function() {
 		responding = false;
-		$('body').removeClass('responding');
+		$('#responses .response').removeClass('show');
+		setTimeout(function() {
+			$('#logo').removeClass('hide');
+		}, 350);
 	}, 3000);
 }
