@@ -501,8 +501,10 @@ main {
 	display: block;
 	z-index: 10;
 }
-
-video {
+#webcam {
+	height: 0;
+}
+#webcam video {
 	opacity: 0;
 }
 #face {
@@ -512,6 +514,9 @@ video {
 	z-index: 14;
 	margin-left: -100px;
 	display: none;
+	transform: rotateY(180deg);
+	-moz-transform: rotateY(180deg);
+	-webkit-transform: rotateY(180deg);
 }
 
 .surfing #face {
@@ -599,7 +604,7 @@ video {
 	vertical-align: middle;
 	text-align: center;
 }
-#looking {
+#pauseOverlay {
 	position: fixed;
 	top: 100%;
 	left: 0;
@@ -609,24 +614,27 @@ video {
 	background: rgba(0,0,0,.8);
 	display: table;
 }
-.paused #looking {
+.paused #pauseOverlay {
 	top:0;
 }
-#looking .inner {
+#pauseOverlay .inner {
 	display: table-cell;
 	vertical-align: middle;
 }
-#looking .inner .text {
-	display: table;
+#pauseOverlay .inner .text {
 	margin: auto;
 	text-align: center;
 	color: white;
+	display: none;
 }
-#looking .inner .text h1 {
+#pauseOverlay .inner .text.show {
+	display: table;
+}
+#pauseOverlay .inner .text h1 {
 	font-size: 40px;
 	line-height: 45px;
 }
-#looking .inner .text h2 {
+#pauseOverlay .inner .text h2 {
 	font-size: 30px;
 	line-height: 35px;
 }

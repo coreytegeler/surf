@@ -263,8 +263,8 @@ $(window).resize(function() {
 $(document).ready(function() {
 	camBox = document.getElementById('webcam');
 	camVid = camBox.getElementsByTagName('video')[0];
-	camCan = camBox.getElementsByTagName('canvas')[0];
-	ctx = camCan.getContext('2d');
+	camCanvas = camBox.getElementsByTagName('canvas')[0];
+	ctx = camCanvas.getContext('2d');
 });
 
 var tracker = new clm.tracker();
@@ -299,7 +299,7 @@ var responding = false;
 var inaccuracy = 0;
 function drawLoop() {
     requestAnimationFrame(drawLoop);
-    ctx.clearRect(0,0,camCan.width,camCan.height);
+    ctx.clearRect(0,0,camCanvas.width,camCanvas.height);
     if (tracker.getCurrentPosition()) {
     	var accuracy = tracker.getScore();
     	$('#face').css({'opacity': Math.round(accuracy*10)/10});
@@ -351,7 +351,9 @@ function drawLoop() {
 
 	    	if (accuracy < 0.7 && $('body').hasClass('surfing')) {
 	    		inaccuracy = inaccuracy + 1;
-				if(inaccuracy > 100) {
+				if(inaccuracy > 50) {
+					$('#pauseOverlay .show').removeClass('show');
+					$('#pauseOverlay #inaccurate').addClass('show');
 					$('body').addClass('paused');
 					player.pauseVideo();
 					for (var i=0; i < 4; i++) {
@@ -362,14 +364,21 @@ function drawLoop() {
 		    		}
 		    	}
 		    	else {
-	    			$('body').removeClass('paused');
-    	   			player.playVideo();
-    				inaccuracy = 0;    		
+		    		setTimeout(function() {
+		    				$('body').removeClass('paused');
+	    					$('#pauseOverlay .show').removeClass('show');
+	    					player.playVideo();
+	    					inaccuracy = 0; 
+		    		}, 4000);   		
 		    	}
+			} else {
+				inaccuracy = inaccuracy - 1;
 			}	
 	    }
-		tracker.draw(camCan);
+		tracker.draw(camCanvas);
     } else if($('body').hasClass('surfing')) {
+    	$('#pauseOverlay .show').removeClass('show');
+    	$('#pauseOverlay #no-face').addClass('show');
     	$('body').addClass('paused');
 		player.pauseVideo();
     }
@@ -399,6 +408,6 @@ function respond(emotion) {
 
 		setTimeout(function() {
 			responding = false;
-		}, 10000);
+		}, 6000);
 	}, 5000);
 }
