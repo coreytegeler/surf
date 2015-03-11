@@ -245,8 +245,6 @@ function rand(x) {
 	return Math.floor((Math.random() * x) + 1);
 }
 
-
-//http://www.sitepoint.com/css3-animation-javascript-event-handlers/
 var pfx = ["webkit", "moz", "MS", "o", ""];
 function PrefixedEvent(element, type, callback) {
 	for (var p = 0; p < pfx.length; p++) {
@@ -285,7 +283,8 @@ function initWebcam() {
 		drawLoop();
       });
     }, function() {
-      // alert('Failed');
+    	$('#instructions .slide#ask-permission').addClass('done');
+      	$('#instructions .slide#no-webcam').addClass('show');
     });
   }
 }
@@ -350,10 +349,9 @@ function drawLoop() {
     			});
     		}
 
-	    	if (accuracy < 0.75 && $('body').hasClass('surfing')) {
+	    	if (accuracy < 0.7 && $('body').hasClass('surfing')) {
 	    		inaccuracy = inaccuracy + 1;
-				if(inaccuracy > 300) {
-					inaccuracy = 0;
+				if(inaccuracy > 100) {
 					$('body').addClass('paused');
 					player.pauseVideo();
 					for (var i=0; i < 4; i++) {
@@ -364,12 +362,16 @@ function drawLoop() {
 		    		}
 		    	}
 		    	else {
-		    		$('body').removeClass('paused');
-	    			player.playVideo();
+	    			$('body').removeClass('paused');
+    	   			player.playVideo();
+    				inaccuracy = 0;    		
 		    	}
 			}	
 	    }
 		tracker.draw(camCan);
+    } else if($('body').hasClass('surfing')) {
+    	$('body').addClass('paused');
+		player.pauseVideo();
     }
 }
 
@@ -389,10 +391,14 @@ function respond(emotion) {
 	}, 350);
 
 	setTimeout(function() {
-		responding = false;
 		$('#responses .response').removeClass('show');
+
 		setTimeout(function() {
 			$('#logo').removeClass('hide');
 		}, 350);
-	}, 3000);
+
+		setTimeout(function() {
+			responding = false;
+		}, 10000);
+	}, 5000);
 }

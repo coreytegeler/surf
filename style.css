@@ -400,8 +400,8 @@ main {
 	-webkit-transform: rotateZ(1.5deg);
 }
 #instructions .slide .text h2 {
-	font-size: 20px;
-	line-height: 25px;
+	font-size: 25px;
+	line-height: 30px;
 	font-weight: 400;
 	margin: 0;
 	text-shadow: 1px 1px 0px black;
