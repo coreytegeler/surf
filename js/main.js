@@ -10,6 +10,9 @@ window.onYouTubeIframeAPIReady = function() {
 }
 
 $(window).load(function() {
+
+	talk('hey hye hye hyehyeh y')
+
 	$play = $('#surf');
 	$waves = $('#waves');
 	$body = $('body');
@@ -142,7 +145,6 @@ function onPlayerReady(event) {
 	queueNewVideo(event);
 }
 
-
 function onPlayerStateChange(event) {
 	var stateInt = event.data;
 	var states = [
@@ -155,7 +157,6 @@ function onPlayerStateChange(event) {
 		'video cued'  //  5
 	];
 	var state = states[stateInt + 1];
-	console.log(stateInt + ' ' + state);
 
 	if(stateInt != 3) {
 		$body.removeClass('buffering');
@@ -307,7 +308,7 @@ function drawLoop() {
     	var emotions = ec.meanPredict(cp);
     	if(emotions && playing) {
     		var angry = emotions[0].value;
-    		var sad = emotions[1].value;
+    		var sad = emotions[1].value*2;
     		var surprised = emotions[2].value;
     		var happy = emotions[3].value;
     		var emotionalValues = [angry, sad, surprised, happy];
@@ -352,10 +353,7 @@ function drawLoop() {
 	    	if (accuracy < 0.7 && $('body').hasClass('surfing')) {
 	    		inaccuracy = inaccuracy + 1;
 				if(inaccuracy > 50) {
-					$('#pauseOverlay .show').removeClass('show');
-					$('#pauseOverlay #inaccurate').addClass('show');
-					$('body').addClass('paused');
-					player.pauseVideo();
+					togglePause('inaccurate');
 					for (var i=0; i < 4; i++) {
 		    			$('#emotions .emotion:eq('+i+')').children('.value').animate({
 		    				'width': 0,
@@ -365,10 +363,7 @@ function drawLoop() {
 		    	}
 		    	else {
 		    		setTimeout(function() {
-		    				$('body').removeClass('paused');
-	    					$('#pauseOverlay .show').removeClass('show');
-	    					player.playVideo();
-	    					inaccuracy = 0; 
+		    				togglePause();
 		    		}, 4000);   		
 		    	}
 			} else {
@@ -377,10 +372,7 @@ function drawLoop() {
 	    }
 		tracker.draw(camCanvas);
     } else if($('body').hasClass('surfing')) {
-    	$('#pauseOverlay .show').removeClass('show');
-    	$('#pauseOverlay #no-face').addClass('show');
-    	$('body').addClass('paused');
-		player.pauseVideo();
+    	togglePause('no-face');
     }
 }
 
@@ -410,4 +402,40 @@ function respond(emotion) {
 			responding = false;
 		}, 6000);
 	}, 5000);
+}
+
+function togglePause(id) {
+	$overlay = $('#pauseOverlay #'+id);
+	if(id == undefined) {
+		$('body').removeClass('paused');
+		$('#pauseOverlay .show').removeClass('show');
+		player.playVideo();
+		inaccuracy = 0;
+		hasTalked = false;
+	} else if (!$('#pauseOverlay .show').length) {
+		$overlay.addClass('show');
+		$('body').addClass('paused');
+		player.pauseVideo();
+		var text = $('#pauseOverlay #'+id).text();
+		talk(text);
+	}
+}
+
+var hasTalked = false;
+var tts = new SpeechSynthesisUtterance();
+var voices = window.speechSynthesis.getVoices();
+function talk(text) {
+	if(!hasTalked) {
+		console.log(text, tts);
+		tts.voice = voices[10]; // Note: some voices don't support altering params
+		tts.voiceURI = 'native';
+		tts.volume = 1; // 0 to 1
+		tts.rate = 1; // 0.1 to 10
+		tts.pitch = 2; //0 to 2
+		tts.text = text;
+		tts.lang = 'en-US';
+		tts.onend = function(e) {
+	  		hasTalked = true;
+		};	
+	}
 }
