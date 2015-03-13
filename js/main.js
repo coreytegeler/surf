@@ -107,7 +107,7 @@ function findVideos() {
 	var key = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
 	var order = 'rating';
 	var query = tag;
-	var queryCount = 3;
+	var queryCount = 10;
 	var yt = 'https://www.googleapis.com/youtube/v3/search?order=' + order + '&part=id&q=' + query + '&maxResults=' + queryCount + '&key=' + key;
 	$.get( yt, function(data) {
 	  for (var i = 0; i < data.items.length; i++) {
@@ -116,7 +116,7 @@ function findVideos() {
 	  if (surfing == false) {
 	  	setupPlayer();
 	  } else {
-	  	queueNewVideo();
+	  	playNewVideo();
 	  }
 	});
 }
@@ -139,7 +139,7 @@ function setupPlayer(qV) {
 
 function onPlayerReady(event) {
 	video = event.target;
-	queueNewVideo(event);
+	playNewVideo(event);
 }
 
 function onPlayerStateChange(event) {
@@ -190,7 +190,7 @@ function onPlayerStateChange(event) {
 		// 	var endTime = currentTime + rand(8) - 1;
 		// 	console.log(currentTime, endTime);
 		// 	if(currentTime >= endTime) {
-		// 		queueNewVideo();
+		// 		playNewVideo();
 		// 	}
 		// },1000);
 	} else if (stateInt == 3 && surfing == true) {
@@ -199,7 +199,7 @@ function onPlayerStateChange(event) {
 		buffering = true;
 		playing = false;
 	} else if (stateInt == 0) {
-		queueNewVideo();
+		playNewVideo();
 	}
 
 	if (stateInt == 1 && surfing == true) {
@@ -216,7 +216,7 @@ function startSurfing() {
 	$('#logo').addClass('surfing');
 }
 var queryIndex = 0;
-function queueNewVideo() {
+function playNewVideo() {
 	var queriedVideo = queriedVideos[queryIndex];
 	var id = queriedVideo.id.videoId;
 	player.loadVideoById(id);
@@ -317,11 +317,13 @@ function drawLoop() {
     		}
     		dislike = dislike + (angry + sad - happy - surprised);
 
-    		if(dislike >= 25) {
+    		if(dislike >= 50) {
     			scanCount = 0;
     			dislike = 0;
     			like = 0;
-    			queueNewVideo();
+    			queryIndex = 0;
+    			queriedVideos = [];
+    			findVideos();
     			if (responding == false) {
 	    			var maxValue = Math.max.apply(null, emotionalValues);
 	    			var maxIndex = emotionalValues.indexOf(maxValue);
@@ -349,7 +351,7 @@ function drawLoop() {
 
 	    	if (accuracy < 0.7 && $('body').hasClass('surfing')) {
 	    		inaccuracy = inaccuracy + 1;
-				if(inaccuracy > 50) {
+				if(inaccuracy > 200) {
 					togglePause('inaccurate');
 					for (var i=0; i < 4; i++) {
 		    			$('#emotions .emotion:eq('+i+')').children('.value').animate({
@@ -359,9 +361,7 @@ function drawLoop() {
 		    		}
 		    	}
 		    	else {
-		    		setTimeout(function() {
-		    				togglePause('play');
-		    		}, 4000);   		
+		    		togglePause('play');		
 		    	}
 			} else {
 				inaccuracy = inaccuracy - 1;
@@ -405,13 +405,15 @@ function respond(emotion) {
 var isTalking = false;
 function togglePause(reason) {
 	$overlay = $('#pauseOverlay #'+reason);
-	if(reason == 'play' && !isTalking) {
-		$('body').removeClass('paused');
-		$('#pauseOverlay .show').removeClass('show');
-		// talk('Thank you, enjoy the video');
-		player.playVideo();
+	if(reason == 'play') {
 		inaccuracy = 0;
-		hasTalked = false;
+		if(!isTalking) {
+			$('body').removeClass('paused');
+			$('#pauseOverlay .show').removeClass('show');
+			// talk('Thank you, enjoy the video');
+			player.playVideo();
+			hasTalked = false;
+		}
 	} else if (!$('#pauseOverlay .show').length) {
 		$overlay.addClass('show');
 		$('body').addClass('paused');
@@ -436,7 +438,6 @@ function talk(text) {
 		hasTalked = true;
 		tts.onend = function(e) {
 	  		isTalking = false;
-	  		console.log(isTalking);
 		};
 		speechSynthesis.speak(tts);
 		console.log(text);
