@@ -564,9 +564,10 @@ main {
 	position: fixed;
 	bottom: 0;
 	left: 0;
-	width: calc(50% - 130px);
-	width: -moz-calc(50% - 130px);
-	width: -webkit-calc(50% - 130px);
+	width: calc(50% - 110px);
+	width: -moz-calc(50% - 110px);
+	width: -webkit-calc(50% - 110px);
+	padding: 10px;
 	height: 130px;
 	z-index: 14;
 	text-align: middle;
@@ -599,7 +600,7 @@ main {
 	opacity: 1;
 }
 #responses .response .text {
-	font-size: 35px;
+	font-size: 30px;
 	display: table-cell;
 	vertical-align: middle;
 	text-align: center;

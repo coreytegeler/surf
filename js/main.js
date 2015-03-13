@@ -10,9 +10,6 @@ window.onYouTubeIframeAPIReady = function() {
 }
 
 $(window).load(function() {
-
-	talk('hey hye hye hyehyeh y')
-
 	$play = $('#surf');
 	$waves = $('#waves');
 	$body = $('body');
@@ -223,7 +220,7 @@ function queueNewVideo() {
 	var queriedVideo = queriedVideos[queryIndex];
 	var id = queriedVideo.id.videoId;
 	player.loadVideoById(id);
-	player.setVolume(0);
+	player.setVolume(100);
 	queryIndex = queryIndex + 1;
 	if(queryIndex == queriedVideos.length - 1) {
 		findVideos();
@@ -363,7 +360,7 @@ function drawLoop() {
 		    	}
 		    	else {
 		    		setTimeout(function() {
-		    				togglePause();
+		    				togglePause('play');
 		    		}, 4000);   		
 		    	}
 			} else {
@@ -404,11 +401,14 @@ function respond(emotion) {
 	}, 5000);
 }
 
-function togglePause(id) {
-	$overlay = $('#pauseOverlay #'+id);
-	if(id == undefined) {
+
+var isTalking = false;
+function togglePause(reason) {
+	$overlay = $('#pauseOverlay #'+reason);
+	if(reason == 'play' && !isTalking) {
 		$('body').removeClass('paused');
 		$('#pauseOverlay .show').removeClass('show');
+		// talk('Thank you, enjoy the video');
 		player.playVideo();
 		inaccuracy = 0;
 		hasTalked = false;
@@ -416,26 +416,29 @@ function togglePause(id) {
 		$overlay.addClass('show');
 		$('body').addClass('paused');
 		player.pauseVideo();
-		var text = $('#pauseOverlay #'+id).text();
+		var text = $('#pauseOverlay #'+reason).text();
 		talk(text);
 	}
 }
-
-var hasTalked = false;
 var tts = new SpeechSynthesisUtterance();
 var voices = window.speechSynthesis.getVoices();
+var hasTalked = false;
 function talk(text) {
 	if(!hasTalked) {
-		console.log(text, tts);
-		tts.voice = voices[10]; // Note: some voices don't support altering params
+		isTalking = true;
+		tts.voice = voices[1]; // Note: some voices don't support altering params
 		tts.voiceURI = 'native';
 		tts.volume = 1; // 0 to 1
 		tts.rate = 1; // 0.1 to 10
 		tts.pitch = 2; //0 to 2
 		tts.text = text;
 		tts.lang = 'en-US';
+		hasTalked = true;
 		tts.onend = function(e) {
-	  		hasTalked = true;
-		};	
+	  		isTalking = false;
+	  		console.log(isTalking);
+		};
+		speechSynthesis.speak(tts);
+		console.log(text);
 	}
 }
