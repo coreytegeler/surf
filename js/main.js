@@ -305,7 +305,7 @@ function drawLoop() {
     	var emotions = ec.meanPredict(cp);
     	if(emotions && playing) {
     		var angry = emotions[0].value;
-    		var sad = emotions[1].value*2;
+    		var sad = emotions[1].value;
     		var surprised = emotions[2].value;
     		var happy = emotions[3].value;
     		var emotionalValues = [angry, sad, surprised, happy];
@@ -383,9 +383,7 @@ function respond(emotion) {
 
 	console.log(response);
 
-	// if(type = 'text') {
-	// 	talk(response);
-	// }
+	// 
 
 	$('#logo').addClass('hide');
 	$('#responses .response').removeClass('show');
