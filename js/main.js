@@ -380,7 +380,13 @@ function respond(emotion) {
 	var type = types[Math.round(Math.random(1))];
 	var responseArray = responses[emotion][type];
 	var response = responseArray[Math.round(Math.random(responseArray.length))];
+
 	console.log(response);
+
+	// if(type = 'text') {
+	// 	talk(response);
+	// }
+
 	$('#logo').addClass('hide');
 	$('#responses .response').removeClass('show');
 	setTimeout(function() {

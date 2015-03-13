@@ -3,10 +3,10 @@ responses = {
 		"text" : [
 			"U mad?",
 			"Sorry if this angers you, on to the next one!",
-			"Don't let this bring you down, we'll find another video for you.",
+			"I'll find another video for you.",
 			"You're right, we shouldn't have showed you this one.",
 			"Sorry, how about this video?",
-			"We don't like this one either!"
+			"I don't like this one either!"
 		],
 		"emoticon" : [
 			"(ノಠ益ಠ)ノ",
@@ -17,7 +17,7 @@ responses = {
 	"sad" : {
 		"text" : [
 			"Sorry if this angers you, on to the next one!",
-			"Don't let this bring you down, we'll find another video for you.",
+			"I'll find another video for you.",
 			"You're right, we shouldn't have showed you this one.",
 			"Sorry, how about this video?",
 			"I don't like this one either!",
@@ -59,7 +59,6 @@ responses = {
 			"(•‿•)",
 			"＼（＾▽＾）／",
 			"ʘ‿ʘ",
-			""
 		]
 	}
 }
