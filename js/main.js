@@ -13,7 +13,7 @@ $(window).load(function() {
 	$play = $('#surf');
 	$waves = $('#waves');
 	$body = $('body');
-	findVideos();
+	findVideos(true);
 
 	setTimeout(function() {
 		$body.addClass('intro');
@@ -99,25 +99,34 @@ function authorize() {
 }
 
 var queriedVideos = [];
-function findVideos() {
+function findVideos(newCat) {
 	var l = tags.length;
 	var i = rand(l) - 1;
 	var tag = tags[i];
-	console.log(i, l, tag);
 	var key = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
 	var order = 'rating';
+	var part = 'snippet'
 	var query = tag;
+	var chart = 'mostPopular';
 	var queryCount = 10;
-	var yt = 'https://www.googleapis.com/youtube/v3/search?order=' + order + '&part=id&q=' + query + '&maxResults=' + queryCount + '&key=' + key;
+	var videoCategories = 44;
+
+	if(newCat == false) {
+		var yt = 'https://www.googleapis.com/youtube/v3/videoCategories?id=' + query + '&order=' + order + '&part=' + part + '&maxResults=' + queryCount + '&key=' + key;	
+	} else {
+		var yt = 'https://www.googleapis.com/youtube/v3/videos?chart=' + chart + '&order=' + order + '&part=' + part + '&maxResults=' + queryCount + '&key=' + key;	
+	}
+
 	$.get( yt, function(data) {
-	  for (var i = 0; i < data.items.length; i++) {
-	  	queriedVideos.push(data.items[i]);	
-	  }
-	  if (surfing == false) {
-	  	setupPlayer();
-	  } else {
-	  	playNewVideo();
-	  }
+		console.log(data);
+		for (var i = 0; i < data.items.length; i++) {
+			queriedVideos.push(data.items[i]);	
+		}
+		if (surfing == false) {
+			setupPlayer();
+		} else {
+			playNewVideo();
+		}
 	});
 }
 
@@ -164,12 +173,12 @@ function onPlayerStateChange(event) {
 	if (stateInt == 1 && surfing == false) {
 		video.pauseVideo();
 
-		var dur = video.getDuration();
-		startTime = rand(dur); //prevent this from loading too close to the end!!
-		var newDur = dur - startTime;
+		// var dur = video.getDuration();
+		// startTime = rand(dur); //prevent this from loading too close to the end!!
+		// var newDur = dur - startTime;
 		// endTime = rand(dur); //prevent this from ending too close to the start!!
 		// endTime = startTime + 5;
-		video.seekTo(startTime, true);
+		// video.seekTo(startTime, true);
 
 		$body.addClass('ready').removeClass('waiting');
 
@@ -185,7 +194,7 @@ function onPlayerStateChange(event) {
 		// endTime = startTime + 10;
 
 		// window.setInterval(function() {
-		// 	// var dur = video.getDuration();
+		// 	var dur = video.getDuration();
 		// 	var currentTime = video.getCurrentTime();
 		// 	var endTime = currentTime + rand(8) - 1;
 		// 	console.log(currentTime, endTime);
@@ -215,16 +224,23 @@ function startSurfing() {
 	$body.addClass('surfing');
 	$('#logo').addClass('surfing');
 }
-var queryIndex = 0;
+var queryIndex;
 function playNewVideo() {
+	queryIndex = rand(queriedVideos.length - 1);
+	console.log(queryIndex);
 	var queriedVideo = queriedVideos[queryIndex];
-	var id = queriedVideo.id.videoId;
+	console.log(queriedVideo);
+	var id = queriedVideo.id;
+	if(id == undefined) {
+		id = queriedVideo.id.videoId;
+	}
 	player.loadVideoById(id);
 	player.setVolume(100);
-	queryIndex = queryIndex + 1;
-	if(queryIndex == queriedVideos.length - 1) {
+	queriedVideos.splice(queryIndex,1);
+	if(queriedVideos.length == 1) {
 		findVideos();
 	}
+	console.log(queriedVideos);
 }
 
 function stopVideo() {
@@ -323,7 +339,7 @@ function drawLoop() {
     			like = 0;
     			queryIndex = 0;
     			queriedVideos = [];
-    			findVideos();
+    			findVideos(true);
     			if (responding == false) {
 	    			var maxValue = Math.max.apply(null, emotionalValues);
 	    			var maxIndex = emotionalValues.indexOf(maxValue);
@@ -375,16 +391,10 @@ function drawLoop() {
 
 function respond(emotion) {
 	responding = true;
-	console.log(emotion);
 	var types = ['text', 'emoticon'];
 	var type = types[Math.round(Math.random(1))];
 	var responseArray = responses[emotion][type];
 	var response = responseArray[Math.round(Math.random(responseArray.length))];
-
-	console.log(response);
-
-	// 
-
 	$('#logo').addClass('hide');
 	$('#responses .response').removeClass('show');
 	setTimeout(function() {
