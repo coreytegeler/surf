@@ -13,8 +13,7 @@ $(window).load(function() {
 	$play = $('#surf');
 	$waves = $('#waves');
 	$body = $('body');
-	findVideos(true);
-
+	getCategories();
 	setTimeout(function() {
 		$body.addClass('intro');
 		instructions();
@@ -76,51 +75,47 @@ function instructions() {
 	// });
 }
 
-function authorize() {
-	var base = "https://accounts.google.com/o/oauth2/auth";
-	var client_id = "936413705890-i0fdiflilt20fta2g6l7892uq2i09qg6.apps.googleusercontent.com";
-	var redirect_uri = "https://www.coreytegeler.com/";
-	var scope = "https://www.googleapis.com/auth/youtube.readonly";
-	var response_type = "token";
-	var authUri = base + "?client_id=" + client_id + "&redirect_uri=" + redirect_uri + "&scope=" + scope + "&response_type=" + response_type;
-	$.ajax({
-		type: "GET",
-		url: authUri,
-		xhrFields: {
-			withCredentials: false
-		},
-		headers: {
-			AccessControlAllowOrigin: "*"
-		},
-		success: function() {
-			// console.log('Woo!')
+
+var videoCategories = [];
+function getCategories() {
+	var apiKey = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
+	var categoryIds = 'https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=US&key=AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
+	$.get(categoryIds, function(data) {
+		for (var i = 0; i < data.items.length; i++) {
+			videoCategories.push(data.items[i].id);
 		}
+		findVideos(false);
 	});
 }
 
 var queriedVideos = [];
-function findVideos(newCat) {
-	var l = tags.length;
-	var i = rand(l) - 1;
-	var tag = tags[i];
-	var key = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
+var playedVideos = [];
+function findVideos(newCat, category) {
+	var cat = category;
+	// var l = tags.length;
+	// var i = rand(l) - 1;
+	// var tag = tags[i];
+	// var search = tag;
+	var apiKey = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
 	var order = 'rating';
 	var part = 'snippet'
-	var query = tag;
-	var chart = 'mostPopular';
-	var queryCount = 10;
-	var videoCategories = 44;
-
+	var count = 10;
 	if(newCat == false) {
-		var yt = 'https://www.googleapis.com/youtube/v3/videoCategories?id=' + query + '&order=' + order + '&part=' + part + '&maxResults=' + queryCount + '&key=' + key;	
+		if(cat == undefined) {
+			cat = videoCategories[rand(videoCategories.length)];
+			console.log(videoCategories);
+			console.log(cat);
+		}
 	} else {
-		var yt = 'https://www.googleapis.com/youtube/v3/videos?chart=' + chart + '&order=' + order + '&part=' + part + '&maxResults=' + queryCount + '&key=' + key;	
+		cat = 0;
 	}
-
+	var yt = 'https://www.googleapis.com/youtube/v3/videos?part=' + part + '&chart=mostPopular&videoCategoryId=' + cat + '&order=' + order + '&maxResults=' + count + '&key=' + apiKey;	
 	$.get( yt, function(data) {
 		console.log(data);
 		for (var i = 0; i < data.items.length; i++) {
-			queriedVideos.push(data.items[i]);	
+			if(playedVideos.indexOf(data.items[i].id) == -1) {
+				queriedVideos.push(data.items[i]);		
+			}
 		}
 		if (surfing == false) {
 			setupPlayer();
@@ -148,7 +143,7 @@ function setupPlayer(qV) {
 
 function onPlayerReady(event) {
 	video = event.target;
-	playNewVideo(event);
+	playNewVideo();
 }
 
 function onPlayerStateChange(event) {
@@ -225,22 +220,23 @@ function startSurfing() {
 	$('#logo').addClass('surfing');
 }
 var queryIndex;
+var currentVideo;
 function playNewVideo() {
 	queryIndex = rand(queriedVideos.length - 1);
-	console.log(queryIndex);
 	var queriedVideo = queriedVideos[queryIndex];
-	console.log(queriedVideo);
 	var id = queriedVideo.id;
+	playedVideos.push(id);
 	if(id == undefined) {
 		id = queriedVideo.id.videoId;
 	}
+
 	player.loadVideoById(id);
-	player.setVolume(100);
+	currentVideo = queriedVideo;
 	queriedVideos.splice(queryIndex,1);
+	player.setVolume(0);
 	if(queriedVideos.length == 1) {
-		findVideos();
+		findVideos(true);
 	}
-	console.log(queriedVideos);
 }
 
 function stopVideo() {
@@ -331,14 +327,15 @@ function drawLoop() {
     			dislike = 0;
     			like = 0;
     		}
+
     		dislike = dislike + (angry + sad - happy - surprised);
 
     		if(dislike >= 50) {
     			scanCount = 0;
     			dislike = 0;
     			like = 0;
-    			queryIndex = 0;
     			queriedVideos = [];
+    			videoCategories.splice(currentVideo.snippet.categoryId, 1);
     			findVideos(true);
     			if (responding == false) {
 	    			var maxValue = Math.max.apply(null, emotionalValues);
@@ -349,6 +346,7 @@ function drawLoop() {
     		} else if(dislike <= -100) {
     			if (responding == false) {
     				dislike = 0;
+    				var likedCat = currentVideo.snippet.categoryId;
 	    			var maxValue = Math.max.apply(null, emotionalValues);
 	    			var maxIndex = emotionalValues.indexOf(maxValue);
 	    			var maxEmotion = emotions[maxIndex].emotion;
@@ -444,7 +442,7 @@ function talk(text) {
 		isTalking = true;
 		tts.voice = voices[1]; // Note: some voices don't support altering params
 		tts.voiceURI = 'native';
-		tts.volume = 1; // 0 to 1
+		tts.volume = 0; // 0 to 1
 		tts.rate = 1; // 0.1 to 10
 		tts.pitch = 2; //0 to 2
 		tts.text = text;
@@ -454,6 +452,5 @@ function talk(text) {
 	  		isTalking = false;
 		};
 		speechSynthesis.speak(tts);
-		console.log(text);
 	}
 }
