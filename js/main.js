@@ -39,11 +39,6 @@ function instructions() {
 		},500);
 	});
 
-	$('#instructions .slide#start-surfing .next img').click(function() {
-		$('#instructions .slide#start-surfing').addClass('done');
-		startSurfing();
-	});
-
 	$('#instructions .slide .next img').hover(function() {
 		$img = $(this);
 		var url = $img.attr('src');
@@ -79,12 +74,13 @@ function instructions() {
 var videoCategories = [];
 function getCategories() {
 	var apiKey = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
+	//FIND OUT USERS REGION CODE!!
 	var categoryIds = 'https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=US&key=AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
 	$.get(categoryIds, function(data) {
 		for (var i = 0; i < data.items.length; i++) {
 			videoCategories.push(data.items[i].id);
 		}
-		findVideos(false);
+		findVideos(true);
 	});
 }
 
@@ -103,12 +99,11 @@ function findVideos(newCat, category) {
 	if(newCat == false) {
 		if(cat == undefined) {
 			cat = videoCategories[rand(videoCategories.length)];
-			console.log(videoCategories);
-			console.log(cat);
 		}
 	} else {
 		cat = 0;
 	}
+	console.log(cat);
 	var yt = 'https://www.googleapis.com/youtube/v3/videos?part=' + part + '&chart=mostPopular&videoCategoryId=' + cat + '&order=' + order + '&maxResults=' + count + '&key=' + apiKey;	
 	$.get( yt, function(data) {
 		console.log(data);
@@ -222,6 +217,7 @@ function startSurfing() {
 var queryIndex;
 var currentVideo;
 function playNewVideo() {
+	console.log(queriedVideos);
 	queryIndex = rand(queriedVideos.length - 1);
 	var queriedVideo = queriedVideos[queryIndex];
 	var id = queriedVideo.id;
@@ -287,6 +283,13 @@ function initWebcam() {
       $('#webcam video').on('loadedmetadata', function() {
       	$('#instructions .slide#ask-permission').addClass('done');
       	$('#instructions .slide#start-surfing').addClass('show');
+      	setTimeout(function() {
+			$('#instructions .slide#start-surfing').addClass('done');
+
+		}, 1500);
+		setTimeout(function() {
+			startSurfing();
+		}, 2000);
         tracker.init(pModel);
         camVid.play();
 		tracker.start(camVid);
@@ -443,7 +446,7 @@ function talk(text) {
 		tts.voice = voices[1]; // Note: some voices don't support altering params
 		tts.voiceURI = 'native';
 		tts.volume = 0; // 0 to 1
-		tts.rate = 1; // 0.1 to 10
+		tts.rate = 5; // 0.1 to 10
 		tts.pitch = 2; //0 to 2
 		tts.text = text;
 		tts.lang = 'en-US';
