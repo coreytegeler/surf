@@ -564,9 +564,9 @@ main {
 	position: fixed;
 	bottom: 0;
 	left: 0;
-	width: calc(50% - 110px);
-	width: -moz-calc(50% - 110px);
-	width: -webkit-calc(50% - 110px);
+	width: calc(50% - 150px);
+	width: -moz-calc(50% - 150px);
+	width: -webkit-calc(50% - 150px);
 	padding: 10px;
 	height: 130px;
 	z-index: 14;

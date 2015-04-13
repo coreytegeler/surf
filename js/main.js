@@ -95,7 +95,7 @@ function findVideos(newCat, category) {
 	var apiKey = 'AIzaSyD7UE-orpOJW1DBo6Z-rAMCAEjQbVZEvfg';
 	var order = 'rating';
 	var part = 'snippet'
-	var count = 10;
+	var count = 50;
 	if(newCat == false) {
 		if(cat == undefined) {
 			cat = videoCategories[rand(videoCategories.length)];
@@ -229,7 +229,7 @@ function playNewVideo() {
 	player.loadVideoById(id);
 	currentVideo = queriedVideo;
 	queriedVideos.splice(queryIndex,1);
-	player.setVolume(0);
+	player.setVolume(100);
 	if(queriedVideos.length == 1) {
 		findVideos(true);
 	}
@@ -264,7 +264,6 @@ $(window).resize(function() {
 		player.setSize(width(), height() - 100);
 	}
 });
-
 
 $(document).ready(function() {
 	camBox = document.getElementById('webcam');
@@ -445,7 +444,7 @@ function talk(text) {
 		isTalking = true;
 		tts.voice = voices[1]; // Note: some voices don't support altering params
 		tts.voiceURI = 'native';
-		tts.volume = 0; // 0 to 1
+		tts.volume = 1; // 0 to 1
 		tts.rate = 5; // 0.1 to 10
 		tts.pitch = 2; //0 to 2
 		tts.text = text;
