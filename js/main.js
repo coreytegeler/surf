@@ -103,10 +103,8 @@ function findVideos(newCat, category) {
 	} else {
 		cat = 0;
 	}
-	console.log(cat);
 	var yt = 'https://www.googleapis.com/youtube/v3/videos?part=' + part + '&chart=mostPopular&videoCategoryId=' + cat + '&order=' + order + '&maxResults=' + count + '&key=' + apiKey;	
 	$.get( yt, function(data) {
-		console.log(data);
 		for (var i = 0; i < data.items.length; i++) {
 			if(playedVideos.indexOf(data.items[i].id) == -1) {
 				queriedVideos.push(data.items[i]);		
@@ -217,7 +215,6 @@ function startSurfing() {
 var queryIndex;
 var currentVideo;
 function playNewVideo() {
-	console.log(queriedVideos);
 	queryIndex = rand(queriedVideos.length - 1);
 	var queriedVideo = queriedVideos[queryIndex];
 	var id = queriedVideo.id;
