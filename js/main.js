@@ -306,6 +306,7 @@ var like = 0;
 var scanCount = 0;
 var responding = false;
 var inaccuracy = 0;
+var pauseLength = 0;
 function drawLoop() {
     requestAnimationFrame(drawLoop);
     ctx.clearRect(0,0,camCanvas.width,camCanvas.height);
@@ -384,6 +385,14 @@ function drawLoop() {
     } else if($('body').hasClass('surfing')) {
     	togglePause('no-face');
     }
+
+    if ($('body').hasClass('paused')) {
+    	pauseLength = pauseLength + 1;
+		console.log(pauseLength);
+		if(pauseLength == 3000) {
+			window.location.reload();
+		}
+    }
 }
 
 function respond(emotion) {
@@ -398,7 +407,6 @@ function respond(emotion) {
 		$('#responses .response .text').text(response);
 		$('#responses .response').addClass('show');
 	}, 350);
-
 	setTimeout(function() {
 		$('#responses .response').removeClass('show');
 
@@ -417,11 +425,11 @@ var isTalking = false;
 function togglePause(reason) {
 	$overlay = $('#pauseOverlay #'+reason);
 	if(reason == 'play') {
-		inaccuracy = 0;
 		if(!isTalking) {
+			inaccuracy = 0;
+			pauseLength = 0;
 			$('body').removeClass('paused');
 			$('#pauseOverlay .show').removeClass('show');
-			// talk('Thank you, enjoy the video');
 			player.playVideo();
 			hasTalked = false;
 		}
