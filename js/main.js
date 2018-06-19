@@ -388,7 +388,6 @@ function drawLoop() {
 
     if ($('body').hasClass('paused')) {
     	pauseLength = pauseLength + 1;
-		console.log(pauseLength);
 		if(pauseLength == 3000) {
 			window.location.reload();
 		}
@@ -450,7 +449,7 @@ function talk(text) {
 		tts.voice = voices[1]; // Note: some voices don't support altering params
 		tts.voiceURI = 'native';
 		tts.volume = 1; // 0 to 1
-		tts.rate = 5; // 0.1 to 10
+		tts.rate = 1.25; // 0.1 to 10
 		tts.pitch = 2; //0 to 2
 		tts.text = text;
 		tts.lang = 'en-US';
